@@ -9,7 +9,7 @@ class Distributions:
     @staticmethod
 
 
-    def plot_violin(X1, X2=None, show=True, highlight_idx=None, output_path=None):
+    def plot_violin(X1, X2=None, ax=None, show=True, highlight_idx=None, output_path=None):
         """
         Plot a violin plot of X1, optionally grouped by X2.
         Optionally highlight one specific point using highlight_idx.
@@ -29,7 +29,10 @@ class Distributions:
         
         # --- Create figure ---
         sns.set_context('notebook', font_scale=1.2)
-        fig, ax = plt.subplots()
+        ax_created=False
+        if ax is None:
+            fig, ax = plt.subplots()
+            ax_created=True
 
         # --- Case 1: Only one series ---
         if X2 is None:
@@ -63,9 +66,11 @@ class Distributions:
                         zorder=10,
                         marker="D"
                     )
-                ax.set_title(f"Violin plot of {X1.name} for {highlight_idx} for {highlight_idx}")
-            else: 
-                ax.set_title(f"Violin plot of {X1.name}")
+                if ax_created:
+                    ax.set_title(f"Violin plot of {X1.name} for {highlight_idx}")
+            else:
+                if ax_created: 
+                    ax.set_title(f"Violin plot of {X1.name}")
         
         # --- Case 2: Series vs grouping variable ---
         else:
@@ -108,9 +113,11 @@ class Distributions:
                         zorder=10,
                         marker="D" 
                     )
-                ax.set_title(f"Violin plot of {X1.name} by {X2.name} for {highlight_idx}")
+                if ax_created:
+                    ax.set_title(f"Violin plot of {X1.name} by {X2.name} for {highlight_idx}")
             else:
-                ax.set_title(f"Violin plot of {X1.name} by {X2.name}")
+                if ax_created:
+                    ax.set_title(f"Violin plot of {X1.name} by {X2.name}")
 
         # --- Visual touches ---
         ax.grid(axis='y')
@@ -120,10 +127,12 @@ class Distributions:
             plt.show()
 
         if output_path:
+            safe_name = X1.name.replace("/", "_").replace(" ", "_")
             if X2 is None:
-                plt.savefig(f"{output_path}violinplot_{X1.name}_idx{highlight_idx}.svg", dpi=300, bbox_inches="tight")
+                plt.savefig(f"{output_path}violinplot_{safe_name}_idx{highlight_idx}.svg", dpi=300, bbox_inches="tight")
             else:
-                plt.savefig(f"{output_path}violinplot_{X1.name}_{X2.name}_idx{highlight_idx}.svg", dpi=300, bbox_inches="tight")
+                safe_name_2 = X2.name.replace("/", "_").replace(" ", "_")
+                plt.savefig(f"{output_path}violinplot_{safe_name}_{safe_name_2}_idx{highlight_idx}.svg", dpi=300, bbox_inches="tight")
             print(f"SHAP plot saved to: {output_path}")
 
         return ax
