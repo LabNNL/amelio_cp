@@ -7,3 +7,4 @@ examples/sandbox
 *.DS_Store
 *.ipynb
 amelio_cp/processing/Features.xlsx
+*.svg
