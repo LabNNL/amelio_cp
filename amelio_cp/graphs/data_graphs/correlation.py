@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import seaborn as sns
 from datetime import datetime
 import os
@@ -38,10 +39,46 @@ class Correlations:
         #TODO: savefig doesn't work, need to be fixed
         plt.savefig(output_path, bbox_inches='tight')
 
-    @staticmethod
-    def plot_correlation(X1, X2):
-        
-        sns.regplot(x=X1, y=X2, )
-        plt.title("Correlation between x and y")
-        plt.show()
+        return corr_matrix
 
+    @staticmethod
+    def plot_correlation(X1, X2, show=True):
+        X1_clean, X2_clean = Correlations._dropna_together(X1, X2)
+        r = np.corrcoef(X1_clean, X2_clean)[0, 1]
+        sns.regplot(x=X1_clean, y=X2_clean)
+        plt.text(
+            0.05, 0.95,
+            f"r = {r:.3f}",
+            transform=plt.gca().transAxes,
+            fontsize=14,
+            va='top'
+        )
+        if X1.name and X2.name:
+            x1_name = X1.name
+            x2_name = X2.name
+            plt.title(f"Correlation between {x1_name} and {x2_name}")
+        else :
+            plt.title("Correlation Plot")
+
+        if show:
+            plt.show()
+
+        return r
+
+    @staticmethod
+    def _dropna_together(s1, s2):
+        """
+        Remove rows where either s1 or s2 contains NaN.
+        Returns cleaned copies of both series, aligned.
+        """
+        # Combine into a temporary DataFrame
+        df = pd.concat([s1, s2], axis=1)
+
+        # Drop rows with ANY NaN
+        df = df.dropna()
+
+        # Return the cleaned series separately
+        s1_clean = df.iloc[:, 0]
+        s2_clean = df.iloc[:, 1]
+
+        return s1_clean, s2_clean

@@ -10,3 +10,4 @@ from amelio_cp.graphs.classification_metrics import ClassifierMetrics
 from amelio_cp.optimisation.optimisation_methods import OptimisationMethods
 from amelio_cp.optimisation.optimisation_methods_for_linear import OptimisationMethodsLin
 from amelio_cp.graphs.data_graphs.correlation import Correlations
+from amelio_cp.graphs.data_graphs.distribution import Distributions
