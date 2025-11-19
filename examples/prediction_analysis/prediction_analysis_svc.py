@@ -34,6 +34,7 @@ def prepare_data(data_path, features_path, condition_to_predict):
 def load_data(X, y, model, test_size=0.2):
     model.add_data(X, y, test_size)
 
+
 def collect_wrong_predictions(y_1, y_2, idx):
     FP, FN = [], []
 
@@ -46,18 +47,21 @@ def collect_wrong_predictions(y_1, y_2, idx):
             continue
     return FP, FN
 
+
 def plot_distributions(data, wrong_preds, features, condition_to_predict, output_path):
     for i in range(len(wrong_preds)):
-        fig, axes = plt.subplots(5,4, figsize=(50,50))
+        fig, axes = plt.subplots(5, 4, figsize=(50, 50))
         m, n = 0, 0
         for feature in features:
-            Distributions.plot_violin(data[feature], ax=axes[m,n], highlight_idx=wrong_preds[i], show=False)
+            Distributions.plot_violin(data[feature], ax=axes[m, n], highlight_idx=wrong_preds[i], show=False)
             n += 1
             if n == 4:
                 n = 0
                 m += 1
         plt.suptitle(f"Distributions for patient index: {wrong_preds[i]}")
-        plt.savefig(f"{output_path}distribution_for_{wrong_preds[i]}_{condition_to_predict}.svg", dpi=300, bbox_inches="tight")
+        plt.savefig(
+            f"{output_path}distribution_for_{wrong_preds[i]}_{condition_to_predict}.svg", dpi=300, bbox_inches="tight"
+        )
 
 
 def append_data(results_dict, condition_to_predict, model, accuracy, y_true, y_pred, FP, FN):
@@ -83,6 +87,7 @@ def save_data(results_dict, condition_to_predict, output_path):
     with open(pickle_file_name, "wb") as file:
         pkl.dump(results_dict, file)
 
+
 def main(condition_to_predict):
     results_dict = {}
     data_path = "datasets/sample_2/all_data_28pp.csv"
@@ -97,7 +102,13 @@ def main(condition_to_predict):
     y_pred = model.model.predict(model.X_test_scaled)
     accuracy = model.model.score(model.X_test_scaled, model.y_test)
 
-    ClassifierMetrics.conf_matrix(model, model.y_test, y_pred, ["Responders", "Non-Responders"], "Confusion_Matrix", )
+    ClassifierMetrics.conf_matrix(
+        model,
+        model.y_test,
+        y_pred,
+        ["Responders", "Non-Responders"],
+        "Confusion_Matrix",
+    )
 
     FP, FN = collect_wrong_predictions(np.array(model.y_test), y_pred, model.y_test.index)
     plot_distributions(X, FP, features, condition_to_predict, output_path + "false_positives_")
@@ -105,6 +116,7 @@ def main(condition_to_predict):
 
     append_data(results_dict, condition_to_predict, model, accuracy, model.y_test, y_pred, FP, FN)
     save_data(results_dict, condition_to_predict, output_path)
+
 
 if __name__ == "__main__":
     main("VIT")
