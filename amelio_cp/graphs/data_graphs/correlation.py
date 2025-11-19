@@ -18,7 +18,7 @@ class Correlations:
 
         corr_matrix = data.corr(method=correlation_method)
 
-        plt.figure(figsize=(L-2, L-4))
+        plt.figure(figsize=(20, 18))
         sns.set(font_scale=2) 
         sns.heatmap(
             corr_matrix,
@@ -38,4 +38,10 @@ class Correlations:
         #TODO: savefig doesn't work, need to be fixed
         plt.savefig(output_path, bbox_inches='tight')
 
+    @staticmethod
+    def plot_correlation(X1, X2):
         
+        sns.regplot(x=X1, y=X2, )
+        plt.title("Correlation between x and y")
+        plt.show()
+
