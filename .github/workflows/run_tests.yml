@@ -26,7 +26,7 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@v3
-
+##
       - name: Setup environment
         uses: conda-incubator/setup-miniconda@v3
         with:
@@ -40,7 +40,14 @@ jobs:
           conda list
 
       - name: Install extra dependencies
-        run: conda install -c conda-forge pytest pytest-cov black codecov packaging
+        run: conda install -c conda-forge pytest pytest-cov black codecov packaging -cconda-forge
+
+      - name: Test installed version of amelio_cp
+        run: |
+          python setup.py install
+          cd
+          python -c "import amelio_cp"
+        if: matrix.shard == 1
 
       - name: Run tests with code coverage
         run: pytest -v --color=yes --cov-report term-missing --cov=amelio_cp --cov-report=xml:coverage.xml tests/shard1
