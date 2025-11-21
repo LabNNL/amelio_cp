@@ -11,12 +11,11 @@ class Correlations:
         pass
 
     @staticmethod
-    def plot_correlation_matrix(data, title, output_folder, show=True, correlation_method="pearson"):
+    def plot_correlation_matrix(data, title, output_folder=None, show=True, correlation_method="pearson"):
         l, L = data.shape
 
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"corr_matrix_{title}_{correlation_method}_{timestamp}.svg"
-        output_path = os.path.join(output_folder, filename)
 
         corr_matrix = data.corr(method=correlation_method)
 
@@ -31,8 +30,11 @@ class Correlations:
 
         if show:
             plt.show()
-        # TODO: savefig doesn't work, need to be fixed
-        plt.savefig(output_path, bbox_inches="tight")
+        
+        if output_folder is not None:
+            output_path = os.path.join(output_folder, filename)
+            # TODO: savefig doesn't work, need to be fixed
+            plt.savefig(output_path, bbox_inches="tight")
 
         return corr_matrix
 

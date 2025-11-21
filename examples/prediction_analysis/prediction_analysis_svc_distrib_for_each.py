@@ -51,29 +51,21 @@ def collect_wrong_predictions(y_1, y_2, idx):
             continue
     return FP, FN
 
-def count_feq_indices(idx_list):
-    freq_dict = {}
-    for idx in idx_list:
-        if idx in freq_dict:
-            freq_dict[idx] += 1
-        else:
-            freq_dict[idx] = 1
-    return [[idx, freq] for idx, freq in freq_dict.items()]
 
 def plot_distributions(data, wrong_preds, features, condition_to_predict, random_state, output_path):
     for i in range(len(wrong_preds)):
         fig, axes = plt.subplots(5, 4, figsize=(50, 50))
         m, n = 0, 0
         for feature in features:
-            Distributions.plot_violin(data[feature], ax=axes[m, n], highlight_idx_list=wrong_preds, show=False)
+            Distributions.plot_violin(data[feature], ax=axes[m, n], highlight_idx=wrong_preds[i], show=False)
             n += 1
             if n == 4:
                 n = 0
                 m += 1
-    plt.suptitle(f"Distributions for patient index: {str(wrong_preds[i][0])}\n(random_state={random_state})", fontsize=40)
-    plt.savefig(
-        f"{output_path}distribution_for_{str(wrong_preds[i][0])}_{condition_to_predict}_{random_state}.svg", dpi=300, bbox_inches="tight"
-    )
+        plt.suptitle(f"Distributions for patient index: {wrong_preds[i]}\n(random_state={random_state})", fontsize=40)
+        plt.savefig(
+            f"{output_path}distribution_for_{wrong_preds[i]}_{condition_to_predict}_{random_state}.svg", dpi=300, bbox_inches="tight"
+        )
 
 
 def append_data(results_dict, condition_to_predict, model, accuracy, y_true, y_pred, FP, FN):
@@ -103,7 +95,6 @@ def save_data(results_dict, condition_to_predict, output_path):
 
 def main(condition_to_predict, list_random_state):
     results_dict = {}
-    wrong_preds = []
     data_path = "datasets/sample_2/all_data_28pp.csv"
     features_path = "amelio_cp/processing/Features.xlsx"
     output_path = "examples/results/prediction_analysis_results/"
@@ -122,17 +113,16 @@ def main(condition_to_predict, list_random_state):
             model.y_test,
             y_pred,
             ["Responders", "Non-Responders"],
-            f"Confusion_Matrix {random_state}",
-            show=False
+            "Confusion_Matrix",
         )
 
         FP, FN = collect_wrong_predictions(np.array(model.y_test), y_pred, model.y_test.index)
+        plot_distributions(X, FP, features, condition_to_predict, random_state, output_path + "false_positives_")
+        plot_distributions(X, FN, features, condition_to_predict, random_state, output_path + "false_negatives_")
+
         append_data(results_dict, condition_to_predict, model, accuracy, model.y_test, y_pred, FP, FN)
-        wrong_preds = wrong_preds + FP + FN
     
-    idx_freq_list = count_feq_indices(wrong_preds)
-    plot_distributions(X, idx_freq_list, features, condition_to_predict, random_state, output_path + "wrong_predictions_")
-    # save_data(results_dict, condition_to_predict, output_path)
+    save_data(results_dict, condition_to_predict, output_path)
 
 
 if __name__ == "__main__":
