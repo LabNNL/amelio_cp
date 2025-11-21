@@ -7,10 +7,12 @@ import numpy as np
 import pandas as pd
 import pickle as pkl
 
+
 def build_model(rdm_state):
     model = SVCModel()
     model.random_state_split = rdm_state
     return model
+
 
 def prepare_data(data_path, features_path, condition_to_predict):
     all_data = Process.load_csv(data_path)
@@ -51,6 +53,7 @@ def collect_wrong_predictions(y_1, y_2, idx):
             continue
     return FP, FN
 
+
 def count_feq_indices(idx_list):
     freq_dict = {}
     for idx in idx_list:
@@ -59,6 +62,7 @@ def count_feq_indices(idx_list):
         else:
             freq_dict[idx] = 1
     return [[idx, freq] for idx, freq in freq_dict.items()]
+
 
 def plot_distributions(data, wrong_preds, features, condition_to_predict, random_state, output_path):
     for i in range(len(wrong_preds)):
@@ -70,9 +74,13 @@ def plot_distributions(data, wrong_preds, features, condition_to_predict, random
             if n == 4:
                 n = 0
                 m += 1
-    plt.suptitle(f"Distributions for patient index: {str(wrong_preds[i][0])}\n(random_state={random_state})", fontsize=40)
+    plt.suptitle(
+        f"Distributions for patient index: {str(wrong_preds[i][0])}\n(random_state={random_state})", fontsize=40
+    )
     plt.savefig(
-        f"{output_path}distribution_for_{str(wrong_preds[i][0])}_{condition_to_predict}_{random_state}.svg", dpi=300, bbox_inches="tight"
+        f"{output_path}distribution_for_{str(wrong_preds[i][0])}_{condition_to_predict}_{random_state}.svg",
+        dpi=300,
+        bbox_inches="tight",
     )
 
 
@@ -123,15 +131,17 @@ def main(condition_to_predict, list_random_state):
             y_pred,
             ["Responders", "Non-Responders"],
             f"Confusion_Matrix {random_state}",
-            show=False
+            show=False,
         )
 
         FP, FN = collect_wrong_predictions(np.array(model.y_test), y_pred, model.y_test.index)
         append_data(results_dict, condition_to_predict, model, accuracy, model.y_test, y_pred, FP, FN)
         wrong_preds = wrong_preds + FP + FN
-    
+
     idx_freq_list = count_feq_indices(wrong_preds)
-    plot_distributions(X, idx_freq_list, features, condition_to_predict, random_state, output_path + "wrong_predictions_")
+    plot_distributions(
+        X, idx_freq_list, features, condition_to_predict, random_state, output_path + "wrong_predictions_"
+    )
     # save_data(results_dict, condition_to_predict, output_path)
 
 

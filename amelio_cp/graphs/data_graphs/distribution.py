@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.cm as cm
 import matplotlib.colors as colors
 
+
 class Distributions:
     pass
 
@@ -33,7 +34,7 @@ class Distributions:
         if ax is None:
             fig, ax = plt.subplots()
             ax_created = True
-        
+
         # --- Case 1: Only one series ---
         if X2 is None:
             sns.violinplot(
@@ -43,8 +44,8 @@ class Distributions:
             sns.swarmplot(y=X1, color="gray", edgecolor="white", s=6, ax=ax)
 
             if highlight_idx_list is not None:
-                cmap = cm.get_cmap("plasma")  
-                norm = colors.Normalize(vmin=0, vmax=len(highlight_idx_list)-1)   # scale your number range
+                cmap = cm.get_cmap("plasma")
+                norm = colors.Normalize(vmin=0, vmax=len(highlight_idx_list) - 1)  # scale your number range
 
                 for i, (highlight_idx, freq) in enumerate(highlight_idx_list):
                     if highlight_idx in X1.index:
@@ -54,19 +55,19 @@ class Distributions:
                             x=0,  # single violin is at x=0
                             y=X1.loc[highlight_idx],
                             color=color_value,
-                            s=40+freq*5,
+                            s=40 + freq * 5,
                             edgecolor="white",
                             zorder=10,
                             marker="D",
                         )
-                        
+
                         ax.annotate(
-                            text=str(highlight_idx),                      # what to write
-                            xy=(0, X1.loc[highlight_idx]),                # point location
-                            xytext=(5, 5),                      # offset in pixels
+                            text=str(highlight_idx),  # what to write
+                            xy=(0, X1.loc[highlight_idx]),  # point location
+                            xytext=(5, 5),  # offset in pixels
                             textcoords="offset points",
                             fontsize=6,
-                            bbox=dict(facecolor="white", alpha=0.1, edgecolor="none")
+                            bbox=dict(facecolor="white", alpha=0.1, edgecolor="none"),
                         )
                     if ax_created:
                         ax.set_title(f"Violin plot of {X1.name} for {highlight_idx}")

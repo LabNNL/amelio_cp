@@ -7,10 +7,12 @@ import numpy as np
 import pandas as pd
 import pickle as pkl
 
+
 def build_model(rdm_state):
     model = SVCModel()
     model.random_state_split = rdm_state
     return model
+
 
 def prepare_data(data_path, features_path, condition_to_predict):
     all_data = Process.load_csv(data_path)
@@ -64,7 +66,9 @@ def plot_distributions(data, wrong_preds, features, condition_to_predict, random
                 m += 1
         plt.suptitle(f"Distributions for patient index: {wrong_preds[i]}\n(random_state={random_state})", fontsize=40)
         plt.savefig(
-            f"{output_path}distribution_for_{wrong_preds[i]}_{condition_to_predict}_{random_state}.svg", dpi=300, bbox_inches="tight"
+            f"{output_path}distribution_for_{wrong_preds[i]}_{condition_to_predict}_{random_state}.svg",
+            dpi=300,
+            bbox_inches="tight",
         )
 
 
@@ -121,7 +125,7 @@ def main(condition_to_predict, list_random_state):
         plot_distributions(X, FN, features, condition_to_predict, random_state, output_path + "false_negatives_")
 
         append_data(results_dict, condition_to_predict, model, accuracy, model.y_test, y_pred, FP, FN)
-    
+
     save_data(results_dict, condition_to_predict, output_path)
 
 

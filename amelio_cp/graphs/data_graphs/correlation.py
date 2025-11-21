@@ -30,7 +30,7 @@ class Correlations:
 
         if show:
             plt.show()
-        
+
         if output_folder is not None:
             output_path = os.path.join(output_folder, filename)
             # TODO: savefig doesn't work, need to be fixed
