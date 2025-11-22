@@ -131,7 +131,7 @@ if __name__ == "__main__":
     optim = [[42] * nb_iter, [42] * nb_iter, [i for i in range(1, nb_iter + 1)]]
     randomized_seed_type_list = ["split", "cv", "optim"]
 
-    for i in range(len(split)):
+    for i in range(len(split)): # len(split) = 3
         seeds_dict = {"split": split[i], "cv": cv[i], "optim": optim[i]}
         main(seeds_dict, "6MWT", randomized_seed_type_list[i])
         main(seeds_dict, "VIT", randomized_seed_type_list[i])
