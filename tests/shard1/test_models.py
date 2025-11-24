@@ -64,7 +64,7 @@ def test_svr_model():
         np.array([50, 0.01, 0.1, 4]),
     )
 
-    X, y, _ = Process.prepare_data(data_path, features_path, "VIT", model_name=model.name)
+    X, y, _ = Process.prepare_data(data_path, "VIT", model_name=model.name, features_path=None)
     model.add_data(X, y, test_size=0.2)
 
     np.testing.assert_equal(np.array(model.X_train.shape), np.array((80, 19)))
@@ -158,10 +158,10 @@ def test_svr_model():
     np.testing.assert_almost_equal(
         model.X_train_scaled[0],
         np.array(
-            [ 0.55228733,  0.99717765, -0.55407153, -0.37225737,  0.78284974,
-        1.17974668,  0.45605703,  0.191773  ,  0.90265365,  0.12127846,
-        1.52220883,  0.60995466, -0.63322088, -0.00859222,  1.16535424,
-        0.04049381,  0.54281566, -0.28125767,  0.64828423]
+            [ 0.55228733,  0.99717765, -0.55407153, -0.37225737,  1.17974668,
+        0.45605703,  0.191773  ,  0.90265365,  0.12127846,  1.52220883,
+        0.60995466, -0.63322088, -0.00859222,  1.16535424,  0.04049381,
+        0.54281566, -0.28125767,  0.78284974,  0.64828423]
         ),
     )
 
