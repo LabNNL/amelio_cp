@@ -13,7 +13,7 @@ data = Process.load_csv(data_path)
 def test_optimisation_svc_model():
     model = SVCModel()
 
-    X, y, _ = Process.prepare_data(data_path, features_path, "VIT", model_name=model.name)
+    X, y, _ = Process.prepare_data(data_path, "VIT", model_name=model.name)
     model.add_data(X, y, test_size=0.2)
 
     model.train_and_tune("bayesian_optim", n_iter=20)
