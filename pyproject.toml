@@ -1,0 +1,41 @@
+[build-system]
+requires = [
+    "setuptools", 
+    "numpy",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name =  "project_template"
+description = "A generic interface to generate a virtual buddy"
+dynamic = ["version"]
+authors = [
+    {name = "Pariterre", email = "pariterre@hotmail.com"},
+]
+readme = "README.md"
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python"
+]
+requires-python = ">=3.10"
+dependencies = [
+    "numpy", 
+]
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[project.urls]
+Documentation = "https://github.com/pyomeca/python_project_template/tree/main#readme"
+Source = "https://github.com/pyomeca/python_project_template"
+Tracker = "https://github.com/pyomeca/python_project_template/issues"
+
+[tool.setuptools]
+packages = ["project_template"]
+
+[tool.setuptools.dynamic]
+version = {attr = "project_template.__version__"}
+
+[tool.pytest.ini_options]
+pythonpath = "."
+testpaths = "tests"
