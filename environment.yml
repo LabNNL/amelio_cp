@@ -10,6 +10,9 @@ dependencies:
 - scikit-learn=1.7.2
 - scipy
 - scikit-optimize
+- seaborn
+- matplotlib
+- openpyxl
 - shap=0.46.0
 - joblib
 - bayesian-optimization
