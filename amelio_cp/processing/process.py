@@ -177,8 +177,8 @@ class Process:
             selected_features = features["19"].dropna().to_list()
             features_names = features["19_names"].dropna().to_list()
         else :
-            selected_features = all_data.colunms.tolist()
-            features_names = all_data.colunms.tolist()
+            selected_features = all_data.columns.to_list()
+            features_names = all_data.columns.to_list()
 
         X = all_data[selected_features]
 
