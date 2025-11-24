@@ -5,7 +5,7 @@ channels:
 - defaults
 dependencies:
 - python=3.13
-- numpy
+- numpy=2.2.6
 - pandas
 - scikit-learn=1.7.2
 - scipy
