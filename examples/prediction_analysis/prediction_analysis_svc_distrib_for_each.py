@@ -14,7 +14,7 @@ def build_model(rdm_state):
     return model
 
 
-def prepare_data(data_path, features_path, condition_to_predict):
+def prepare_data(data_path, condition_to_predict, features_path):
     all_data = Process.load_csv(data_path)
     if condition_to_predict == "VIT":
         all_data = all_data.drop(["6MWT_POST"], axis=1)
@@ -104,7 +104,7 @@ def main(condition_to_predict, list_random_state):
     output_path = "examples/results/prediction_analysis_results/"
 
     for random_state in list_random_state:
-        X, y, features = prepare_data(data_path, features_path, condition_to_predict)
+        X, y, features = prepare_data(data_path, condition_to_predict, features_path)
         model = build_model(random_state)
         load_data(X, y, model)
 

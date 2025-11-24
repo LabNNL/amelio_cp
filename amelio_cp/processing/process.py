@@ -147,30 +147,38 @@ class Process:
     @staticmethod
     # TODO: what the best? -> giving paths or dataframes?
     # TODO: splitting in several functions for each condition
-    def prepare_data(data_path, features_path, condition_to_predict, model_name):
+    def prepare_data(data_path, condition_to_predict, model_name, features_path=None):
         all_data = Process.load_csv(data_path)
         if condition_to_predict == "VIT":
             all_data = all_data.drop(["6MWT_POST"], axis=1)
-            all_data = all_data.dropna()
+            all_data = all_data.dropna()            
             if model_name == "svc":
                 y = Process.calculate_MCID(all_data["VIT_PRE"], all_data["VIT_POST"], "VIT")
+                all_data = all_data.drop(["VIT_POST"], axis=1)
             else:
                 y = all_data["VIT_POST"]
+                all_data = all_data.drop(["VIT_POST"], axis=1)
 
         elif condition_to_predict == "6MWT":
             all_data = all_data.drop(["VIT_POST"], axis=1)
             all_data = all_data.dropna()
             if model_name == "svc":
                 y = Process.calculate_MCID(all_data["6MWT_PRE"], all_data["6MWT_POST"], "6MWT", all_data["GMFCS"])
+                all_data = all_data.drop(["6MWT_POST"], axis=1)
             else:
                 y = all_data["6MWT_POST"]
+                all_data = all_data.drop(["6MWT_POST"], axis=1)
 
         else:
             raise ValueError("Condition to predict not recognized. Choose either 'VIT' or '6MWT'.")
 
-        features = pd.read_excel(features_path)
-        selected_features = features["19"].dropna().to_list()
-        features_names = features["19_names"].dropna().to_list()
+        if features_path:
+            features = pd.read_excel(features_path)
+            selected_features = features["19"].dropna().to_list()
+            features_names = features["19_names"].dropna().to_list()
+        else :
+            selected_features = all_data.colunms.tolist()
+            features_names = all_data.colunms.tolist()
 
         X = all_data[selected_features]
 
