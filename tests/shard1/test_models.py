@@ -7,9 +7,8 @@ from amelio_cp import SVCModel
 from amelio_cp import Process
 
 
-data_path = "examples/sandbox/fake_data_for_test.csv"
+data_path = "tests/data/fake_data_for_test.csv"
 data = Process.load_csv(data_path)
-features_path = "amelio_cp/processing/Features.xlsx"
 
 
 def test_linear_model():
