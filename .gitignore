@@ -8,3 +8,5 @@ examples/sandbox
 *.ipynb
 amelio_cp/processing/Features.xlsx
 *.svg
+amelio_cp.egg-info
+build

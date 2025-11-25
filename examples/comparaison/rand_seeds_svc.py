@@ -17,7 +17,7 @@ def build_model(random_state_split, random_state_cv, random_state_optim):
     return model
 
 
-def prepare_data(data_path, features_path, condition_to_predict):
+def prepare_data(data_path, condition_to_predict, features_path):
     all_data = Process.load_csv(data_path)
     if condition_to_predict == "VIT":
         all_data = all_data.drop(["6MWT_POST"], axis=1)
@@ -97,7 +97,7 @@ def main(seeds_dict, condition_to_predict, randomized_seed_type):
 
         starting_time = time.time()
 
-        X, y = prepare_data(data_path, features_path, condition_to_predict)
+        X, y = prepare_data(data_path, condition_to_predict, features_path)
         load_data(X, y, model)
 
         model.train_and_tune("bayesian_optim")

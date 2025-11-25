@@ -22,36 +22,10 @@ def build_model(model_name, random_state_split, random_state_cv, random_state_op
     return model
 
 
-def prepare_data(data_path, features_path, condition_to_predict, model_name):
-    all_data = Process.load_csv(data_path)
-    if condition_to_predict == "VIT":
-        all_data = all_data.drop(["6MWT_POST"], axis=1)
-        all_data = all_data.dropna()
-        if model_name == "svc":
-            y = Process.calculate_MCID(all_data["VIT_PRE"], all_data["VIT_POST"], "VIT")
-        else:
-            y = all_data["VIT_POST"]
-
-    elif condition_to_predict == "6MWT":
-        all_data = all_data.drop(["VIT_POST"], axis=1)
-        all_data = all_data.dropna()
-        if model_name == "svc":
-            y = Process.calculate_MCID(all_data["6MWT_PRE"], all_data["6MWT_POST"], "6MWT", all_data["GMFCS"])
-        else:
-            y = all_data["6MWT_POST"]
-
-    features = pd.read_excel(features_path)
-    selected_features = features["19"].dropna().to_list()
-    features_names = features["19_names"].dropna().to_list()
-
-    X = all_data[selected_features]
-
-    return X, y, features_names
-
-
-def load_data(X, y, model, test_size=0.2):
+def load_data(model, data_path, condition_to_predict, features_path=None, test_size=0.2):
+    X, y, features_names = Process.prepare_data(data_path, condition_to_predict, model.name, features_path)
     model.add_data(X, y, test_size)
-
+    return features_names
 
 def append_data(
     results_dict, model, id, optim_time, precision_score, score_from_model, conf_matrix, y_true, y_pred, r2=None
@@ -114,8 +88,7 @@ def main(model_name, seeds_dict, condition_to_predict, randomized_seed_type):
 
         starting_time = time.time()
 
-        X, y, features_names = prepare_data(data_path, features_path, condition_to_predict, model_name)
-        load_data(X, y, model)
+        features = load_data(model, data_path, condition_to_predict, features_path, test_size=0.2)
 
         model.train_and_tune("bayesian_optim")
         y_pred = model.model.predict(model.X_test_scaled)
