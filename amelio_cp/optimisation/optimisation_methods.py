@@ -78,10 +78,10 @@ class OptimisationMethods:
         return None
 
     # %% Optimisation functions
-    def random_search(self, model, n_iter, k_folds):
+    def random_search(model, n_iter, k_folds):
 
         if model.name == "svc" or model.name == "svr":
-            pbounds = self._get_pbounds_for_svm(model.name, "random", model.params_distributions)
+            pbounds = OptimisationMethods._get_pbounds_for_svm(model.name, "random", model.params_distributions)
         else:
             raise NotImplementedError("Random search not implemented for this model.")
 
@@ -102,11 +102,11 @@ class OptimisationMethods:
 
         return search
 
-    def bayesian_search(self, model, n_iter, k_folds):
+    def bayesian_search(model, n_iter, k_folds):
         print("⚙️ Starting Bayesian Search Optimization...")
 
         if model.name == "svc" or model.name == "svr":
-            pbounds = self._get_pbounds_for_svm(model.name, "bayesian_search", model.params_distributions)
+            pbounds = OptimisationMethods._get_pbounds_for_svm(model.name, "bayesian_search", model.params_distributions)
         else:
             raise NotImplementedError("Bayesian search not implemented for this model.")
 

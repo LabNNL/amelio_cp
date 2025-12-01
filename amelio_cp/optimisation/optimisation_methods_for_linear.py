@@ -20,6 +20,10 @@ class OptimisationMethodsLin(OptimisationMethods):
         kernel_options = ["linear", "poly", "rbf"]
 
         def function_to_min(C, gamma, epsilon, degree, kernel):
+            """
+            This function updates the model with the given hyperparameters,
+            performs cross-validation, and returns the mean accuracy (to be maximized).
+            """
             params = {
                 "C": C,
                 "gamma": gamma,
@@ -27,10 +31,10 @@ class OptimisationMethodsLin(OptimisationMethods):
                 "degree": int(degree),
                 "kernel": kernel_options[int(kernel)],
             }
-            try_model = model.model.set_params(**params)
+            model_to_optim = model.model.set_params(**params)
             cv = KFold(n_splits=5, shuffle=True, random_state=model.random_state_cv)
             scores = cross_val_score(
-                try_model, model.X_train_scaled, model.y_train, cv=cv, scoring="neg_mean_squared_error", n_jobs=-1
+                model_to_optim, model.X_train_scaled, model.y_train, cv=cv, scoring="neg_mean_squared_error", n_jobs=-1
             )
             return scores.mean()
 
