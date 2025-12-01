@@ -83,15 +83,12 @@ class LinearModel:
             raise ValueError("No data available for training.")
 
         if method == "random":
-            search = OptimisationMethodsLin.random_search(
-                model=self, n_iter=n_iter, k_folds=5
-            )
+            search = OptimisationMethodsLin.random_search(model=self, n_iter=n_iter, k_folds=5)
             search.fit(self.X_train_scaled, self.y_train)  # training
             print("Random search optimisation completed.")
 
         elif method == "bayesian_search":
-            search = OptimisationMethodsLin.bayesian_search(
-                model=self, n_iter=n_iter, k_folds=5)
+            search = OptimisationMethodsLin.bayesian_search(model=self, n_iter=n_iter, k_folds=5)
             search.fit(self.X_train_scaled, self.y_train)  # training
             print("Bayesian Search optimisation completed.")
 

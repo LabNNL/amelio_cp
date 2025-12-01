@@ -106,7 +106,9 @@ class OptimisationMethods:
         print("⚙️ Starting Bayesian Search Optimization...")
 
         if model.name == "svc" or model.name == "svr":
-            pbounds = OptimisationMethods._get_pbounds_for_svm(model.name, "bayesian_search", model.params_distributions)
+            pbounds = OptimisationMethods._get_pbounds_for_svm(
+                model.name, "bayesian_search", model.params_distributions
+            )
         else:
             raise NotImplementedError("Bayesian search not implemented for this model.")
 

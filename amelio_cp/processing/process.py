@@ -151,7 +151,7 @@ class Process:
         all_data = Process.load_csv(data_path)
         if condition_to_predict == "VIT":
             all_data = all_data.drop(["6MWT_POST"], axis=1)
-            all_data = all_data.dropna()            
+            all_data = all_data.dropna()
             if model_name == "svc":
                 y = Process.calculate_MCID(all_data["VIT_PRE"], all_data["VIT_POST"], "VIT")
                 all_data = all_data.drop(["VIT_POST"], axis=1)
@@ -176,7 +176,7 @@ class Process:
             features = pd.read_excel(features_path)
             selected_features = features["19"].dropna().to_list()
             features_names = features["19_names"].dropna().to_list()
-        else :
+        else:
             selected_features = all_data.columns.to_list()
             features_names = all_data.columns.to_list()
 

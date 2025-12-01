@@ -51,7 +51,7 @@ class Distributions:
                     if highlight_idx in X1.index:
                         color_value = cmap(norm(i))
                         ax.scatter(
-                            x=0.05*i,  # single violin is at x=0
+                            x=0.05 * i,  # single violin is at x=0
                             y=X1.loc[highlight_idx],
                             color=color_value,
                             s=40 + freq * 5,
@@ -62,7 +62,7 @@ class Distributions:
 
                         ax.annotate(
                             text=str(highlight_idx),  # what to write
-                            xy=(0.05*i, X1.loc[highlight_idx]),  # point location
+                            xy=(0.05 * i, X1.loc[highlight_idx]),  # point location
                             xytext=(5, 5),  # offset in pixels
                             textcoords="offset points",
                             fontsize=6,

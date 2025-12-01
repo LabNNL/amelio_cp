@@ -27,11 +27,12 @@ def load_data(model, data_path, condition_to_predict, features_path=None, test_s
     model.add_data(X, y, test_size)
     return features_names
 
+
 def append_data(
     results_dict, model, id, optim_time, precision_score, score_from_model, conf_matrix, y_true, y_pred, r2=None
 ):
     results_dict["id_" + str(id)] = {
-        "model":model,
+        "model": model,
         "model_name": model.name,
         "optim_method": model.optim_method,
         "random_state": model.random_state,
@@ -61,7 +62,7 @@ def save_data(results_dict, model_name, condition_to_predict, randomized_seed_ty
         pickle_file_name = output_path + model_name + "/" + randomized_seed_type + "_" + condition_to_predict + ".pkl"
     else:
         raise ValueError("Model name not recognized. Choose either 'svc' or 'svr'.")
-    
+
     with open(pickle_file_name, "wb") as file:
         pkl.dump(results_dict, file)
 
@@ -120,19 +121,9 @@ def main(model_name, seeds_dict, condition_to_predict, randomized_seed_type):
             precision_score = accuracy_score(model.y_test, y_pred)
             score_from_model = model.model.score(model.X_test_scaled, model.y_test)
             r2 = None
-        
-        
+
         results_dict = append_data(
-            results_dict,
-            model,
-            i,
-            optim_time,
-            precision_score,
-            score_from_model,
-            conf_matrix,
-            model.y_test,
-            y_pred,
-            r2
+            results_dict, model, i, optim_time, precision_score, score_from_model, conf_matrix, model.y_test, y_pred, r2
         )
 
     save_data(results_dict, model_name, condition_to_predict, randomized_seed_type, output_path)
@@ -151,5 +142,5 @@ if __name__ == "__main__":
             seeds_dict = {"split": split[i], "cv": cv[i], "optim": optim[i]}
             main(model_name, seeds_dict, "6MWT", randomized_seed_type_list[i])
             main(model_name, seeds_dict, "VIT", randomized_seed_type_list[i])
-    
+
     print("✅ All iterations done!")

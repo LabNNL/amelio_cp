@@ -96,7 +96,7 @@ def save_data(results_dict, condition_to_predict, output_path):
     with open(pickle_file_name, "wb") as file:
         pkl.dump(results_dict, file)
 
- 
+
 def main(condition_to_predict, list_random_state):
     results_dict = {}
     data_path = "datasets/sample_2/all_data_28pp.csv"
