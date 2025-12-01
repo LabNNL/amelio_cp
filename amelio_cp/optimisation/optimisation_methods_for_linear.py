@@ -41,7 +41,7 @@ class OptimisationMethodsLin(OptimisationMethods):
         print("⚙️ Starting Bayesian optimisation...")
 
         optimizer = BayesianOptimization(
-            f=function_to_min, pbounds=pbounds, random_state=model.random_state_optim, verbose=3
+            f=function_to_min, pbounds=pbounds, random_state=model.random_state_optim, verbose=2
         )
         optimizer.maximize(init_points=10, n_iter=n_iter)
         best_params = optimizer.max["params"]

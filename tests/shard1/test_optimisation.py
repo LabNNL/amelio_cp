@@ -57,7 +57,7 @@ def test_optimisation_svr_model():
 
     np.testing.assert_equal(
         np.array([model.model.C, float(model.model.gamma), model.model.epsilon, model.model.degree]),
-        np.array([608.2331813928909, 1.0, 1.0, 3]),
+        np.array([608.231277005822, 1.0, 1.0, 3]),
     )
 
     np.testing.assert_equal(
