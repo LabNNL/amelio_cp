@@ -10,3 +10,5 @@ amelio_cp/processing/Features.xlsx
 *.svg
 amelio_cp.egg-info
 build
+*.txt
+amelio_cp/processing/~$Features.xlsx

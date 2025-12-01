@@ -2,8 +2,8 @@ import matplotlib.pyplot as plt
 import pickle as pkl
 import numpy as np
 
-vit_pkl_path = "examples/results/svc_vs_svr_rdm_state/svr_VIT_gains.pkl"
-endurance_pkl_path = "examples/results/svc_vs_svr_rdm_state/svr_6MWT_gains.pkl"
+vit_pkl_path = "examples/results/svc_vs_svr_rdm_state/19_features/svr_VIT_gains.pkl"
+endurance_pkl_path = "examples/results/svc_vs_svr_rdm_state/19_features/svr_6MWT_gains.pkl"
 
 with open(vit_pkl_path, "rb") as file:
     vit_dict = pkl.load(file)
@@ -37,7 +37,9 @@ plt.scatter(x_index, endurance_r2_sorted, label="6mwt", color="red")
 plt.xticks(x_index, seeds_sorted)
 plt.xlabel("seeds")
 plt.ylabel("r2")
-plt.text(6, -1.3, f"Speed mean: {vit_mean:.3f}±{vit_sd:.3f}")
-plt.text(6, -1.4, f"6mwt mean: {endurance_mean:.3f}±{endurance_sd:.3f}")
+plt.ylim(-2.5, 1)
+plt.text(6, -1.7, f"Speed mean: {vit_mean:.3f}±{vit_sd:.3f}")
+plt.text(6, -2, f"6mwt mean: {endurance_mean:.3f}±{endurance_sd:.3f}")
+plt.title("Coefficient r2 for different seeds")
 plt.legend()
 plt.show()

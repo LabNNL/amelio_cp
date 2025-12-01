@@ -22,7 +22,7 @@ class Correlations:
         plt.figure(figsize=(20, 18))
         sns.set(font_scale=2)
         sns.heatmap(
-            corr_matrix, annot=True, annot_kws={"size": L // 1.5}, center=0, fmt=".1f", linewidths=0.5, cmap="coolwarm"
+            corr_matrix, annot=True, annot_kws={"size": L // 1.5}, center=0, fmt=".2f", linewidths=0.5, cmap="coolwarm"
         )
 
         plt.title("Correlation Matrix of " + title, fontsize=L // 16)

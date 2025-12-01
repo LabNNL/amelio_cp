@@ -51,7 +51,6 @@ class Distributions:
                     if highlight_idx in X1.index:
                         color_value = cmap(norm(i))
                         ax.scatter(
-                            # TODO: adjust x position
                             x=0.05*i,  # single violin is at x=0
                             y=X1.loc[highlight_idx],
                             color=color_value,

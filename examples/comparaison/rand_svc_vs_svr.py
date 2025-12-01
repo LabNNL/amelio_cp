@@ -15,7 +15,10 @@ def build_model(model_name, seed):
     elif model_name == "svc":
         model = SVCModel()
 
-    model.random_state = seed
+    model.random_state_cv = seed
+    model.random_state_optim = seed
+    model.random_state_split = seed
+
     return model
 
 
@@ -44,8 +47,8 @@ def prepare_data(data_path, condition_to_predict, model_name, features_path):
     #     y = Process.calculate_MCID(all_data, condition_to_predict)
 
     features = pd.read_excel(features_path)
-    selected_features = features["19"].dropna().to_list()
-    features_names = features["19_names"].dropna().to_list()
+    selected_features = features["15"].dropna().to_list()
+    features_names = features["15_names"].dropna().to_list()
 
     X = all_data[selected_features]
 
@@ -59,6 +62,7 @@ def load_data(X, y, model, test_size=0.2):
 def append_data(results_dict, model, id, time, precision_score, conf_matrix, y_true, y_pred, r2=None):
     results_dict["id_" + str(id)] = {
         "model_name": model.name,
+        "model": model,
         "optim_method": model.optim_method,
         "seed": model.random_state,
         "C": model.best_params["C"],
@@ -66,6 +70,7 @@ def append_data(results_dict, model, id, time, precision_score, conf_matrix, y_t
         "degree": model.best_params["degree"],
         "kernel": model.best_params["kernel"],
         "precision_score": precision_score,
+        "model_score": model.model.score(model.X_test_scaled, model.y_test),
         "confusion_matrix": conf_matrix,
         "optim_time": time,
         "y_true": y_true,
@@ -80,7 +85,7 @@ def append_data(results_dict, model, id, time, precision_score, conf_matrix, y_t
 
 
 def save_data(results_dict, model_name, condition_to_predict, output_path):
-    pickle_file_name = output_path + model_name + "_" + condition_to_predict + ".pkl"
+    pickle_file_name = output_path + model_name + "_" + condition_to_predict + "_15_features.pkl"
     with open(pickle_file_name, "wb") as file:
         pkl.dump(results_dict, file)
 
@@ -144,9 +149,9 @@ def main(model_name, seeds_list, condition_to_predict):
 if __name__ == "__main__":
     model_name_list = ["svr", "svc"]
     # seeds_list = [20]
-    # seeds_list = [20, 72, 45, 36, 8, 30, 98, 63, 6, 13]
-    seeds_list = [i for i in range(1, 101)]
+    seeds_list = [20, 72, 45, 36, 8, 30, 98, 63, 6, 13]
+    # seeds_list = [i for i in range(1, 101)]
 
     for model_name in model_name_list:
         main(model_name, seeds_list, "VIT")
-        # main(model_name, seeds_list, "6MWT")
+        main(model_name, seeds_list, "6MWT")

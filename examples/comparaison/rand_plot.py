@@ -2,8 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pickle as pkl
 
-svc_pkl_path = "examples/results/svc_vs_svr_rdm_state/svc_VIT.pkl"
-svr_pkl_path = "examples/results/svc_vs_svr_rdm_state/svr_VIT.pkl"
+svc_pkl_path = "examples/results/svc_vs_svr_rdm_state/results_without_ankle/svc_6MWT.pkl"
+svr_pkl_path = "examples/results/svc_vs_svr_rdm_state/results_without_ankle/svr_6MWT.pkl"
 
 with open(svc_pkl_path, "rb") as file:
     svc_dict = pkl.load(file)
@@ -11,7 +11,7 @@ with open(svc_pkl_path, "rb") as file:
 with open(svr_pkl_path, "rb") as file:
     svr_dict = pkl.load(file)
 
-seeds = [svc_dict[key]["seed"] for key in svc_dict.keys()]
+seeds = [svc_dict[key]["model"].random_state_split for key in svc_dict.keys()]
 svc_acc = [svc_dict[key]["precision_score"] * 100 for key in svc_dict.keys()]
 svr_acc = [svr_dict[key]["precision_score"] * 100 for key in svr_dict.keys()]
 
@@ -23,6 +23,7 @@ avg_diff = np.mean(svc_acc_sorted - svr_acc_sorted)
 std_diff = np.std(svc_acc_sorted - svr_acc_sorted)
 
 x = np.linspace(0, len(seeds), len(seeds), endpoint=False)
+plt.figure(figsize=(30, 10))
 plt.scatter(x, svc_acc_sorted, label="svc", color="r")
 plt.scatter(x, svr_acc_sorted, label="svr", color="b")
 for i in range(len(x)):
@@ -32,8 +33,9 @@ for i in range(len(x)):
     plt.text(x[i] + 0.1, y_mid, f"{diff:.2f}", fontsize=7, color="gray")
 plt.xlabel("Seeds")
 plt.xticks(x, seeds_sorted, rotation=45)
+plt.xlim(-1, 101)
 plt.ylabel("Precision scores (%)")
-plt.title("Precision scores vs. seeds \n VIT predictions")
-plt.text(5, 30, f"Mean difference:\n {avg_diff:.2f}±{std_diff:.2f}", fontsize=8)
+plt.title("Precision scores vs. seeds \n 6MWT predictions")
+plt.text(5, 50, f"Mean difference:\n {avg_diff:.2f}±{std_diff:.2f}", fontsize=8)
 plt.legend()
 plt.show()

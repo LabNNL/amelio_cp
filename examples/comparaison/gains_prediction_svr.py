@@ -32,8 +32,8 @@ def prepare_data(data_path, condition_to_predict, features_path):
         raise ValueError("Condition to predict not recognized. Choose either 'VIT' or '6MWT'.")
 
     features = pd.read_excel(features_path)
-    selected_features = features["19"].dropna().to_list()
-    features_names = features["19_names"].dropna().to_list()
+    selected_features = features["17_ankle"].dropna().to_list()
+    features_names = features["17_ankle_names"].dropna().to_list()
 
     X = all_data[selected_features]
 
@@ -67,7 +67,7 @@ def append_data(results_dict, model, id, time, r2, y_true, y_pred):
 
 
 def save_data(results_dict, model_name, condition_to_predict, output_path):
-    pickle_file_name = output_path + model_name + "_" + condition_to_predict + "_gains.pkl"
+    pickle_file_name = output_path + model_name + "_without_ankle_" + condition_to_predict + "_gains.pkl"
     with open(pickle_file_name, "wb") as file:
         pkl.dump(results_dict, file)
 
