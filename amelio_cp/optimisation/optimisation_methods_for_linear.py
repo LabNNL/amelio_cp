@@ -13,7 +13,7 @@ class OptimisationMethodsLin(OptimisationMethods):
 
         np.random.seed(model.random_state)
         random.seed(model.random_state)
-        
+
         pbounds = {
             "C": (1, 1000),
             "gamma": (0.001, 1),
