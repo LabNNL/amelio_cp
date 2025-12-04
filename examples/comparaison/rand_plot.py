@@ -2,8 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pickle as pkl
 
-svc_pkl_path = "examples/results/svc_vs_svr_rdm_state/results_without_ankle/svc_6MWT.pkl"
-svr_pkl_path = "examples/results/svc_vs_svr_rdm_state/results_without_ankle/svr_6MWT.pkl"
+svc_pkl_path = "examples/results/svc_vs_svr_rdm_state/svc_6MWT_15_features.pkl"
+svr_pkl_path = "examples/results/svc_vs_svr_rdm_state/svr_6MWT_15_features.pkl"
 
 with open(svc_pkl_path, "rb") as file:
     svc_dict = pkl.load(file)

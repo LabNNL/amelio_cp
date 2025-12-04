@@ -1,6 +1,7 @@
 from .optimisation_methods import OptimisationMethods
 from sklearn.model_selection import KFold, cross_val_score
 from bayes_opt import BayesianOptimization
+import numpy as np, random
 
 
 class OptimisationMethodsLin(OptimisationMethods):
@@ -10,6 +11,9 @@ class OptimisationMethodsLin(OptimisationMethods):
     @staticmethod
     def bayesian_optim(model, n_iter):
 
+        np.random.seed(model.random_state)
+        random.seed(model.random_state)
+        
         pbounds = {
             "C": (1, 1000),
             "gamma": (0.001, 1),
@@ -34,7 +38,7 @@ class OptimisationMethodsLin(OptimisationMethods):
             model_to_optim = model.model.set_params(**params)
             cv = KFold(n_splits=5, shuffle=True, random_state=model.random_state_cv)
             scores = cross_val_score(
-                model_to_optim, model.X_train_scaled, model.y_train, cv=cv, scoring="neg_mean_squared_error", n_jobs=-1
+                model_to_optim, model.X_train_scaled, model.y_train, cv=cv, scoring="neg_mean_squared_error", n_jobs=1
             )
             return scores.mean()
 
@@ -46,7 +50,6 @@ class OptimisationMethodsLin(OptimisationMethods):
         optimizer.maximize(init_points=10, n_iter=n_iter)
         best_params = optimizer.max["params"]
         best_params["degree"] = int(best_params["degree"])  # Convert to int
-        best_params["C"] = float(best_params["C"])  # Convert to float
         best_params["kernel"] = kernel_options[int(best_params["kernel"])]  # Map back to string
 
         final_params = {
