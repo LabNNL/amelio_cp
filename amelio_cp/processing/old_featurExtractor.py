@@ -358,7 +358,7 @@ def mean_feature_extractor(
 
 
 # %% Calculates the minimum and maximum values of joints degrees of freedom.
-#TODO: find a way to handle both 'if' states
+# TODO: find a way to handle both 'if' states
 def collecting_angles(all_data, joint_names, side_struct, min_max: str, separate_legs: bool):
     """
     Collect angle data and headers for all joints and, is separate_legs=True, for one side (Right/Left)
@@ -380,7 +380,7 @@ def collecting_angles(all_data, joint_names, side_struct, min_max: str, separate
     -------
     returns a df with all the joint data and their names (i.e., headers, e.g., 'Max_Hip_flx/ext')
     """
-    
+
     sides = side_struct[0]
     joint_data = []
     headers = []
