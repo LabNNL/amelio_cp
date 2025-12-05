@@ -42,5 +42,4 @@ def test_shap_values():
                 0.00031293,
             ]
         ),
-        #   decimal=2,
     )

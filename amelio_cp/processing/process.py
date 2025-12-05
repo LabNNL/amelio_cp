@@ -198,3 +198,81 @@ class Process:
         filepath = os.path.join(output_path, filename)
         df.to_csv(filepath)
         return filepath
+    
+    def _calculate_gsi(data:DataFrame, weight:DataFrame):
+        """This function caluclates the Global Strength Index as such:
+                    GSI = (1/n)*sum(muscle_torques/weight)
+
+                    with n = number of muscles considered 
+
+        Parameters
+        ----------
+        data : DataFrame
+            only the strength values to consider for the calculation of the gsi
+
+        weight : Series
+            values of weight to normalised the sum of strength
+
+        Returns
+        -------
+        DataFrame
+            with the GSI for each individual (i.e., row)
+        """
+
+        all_gsi = []
+        for i in range(len(data)):
+            muscle_strenghts = data.iloc[i]
+            sum = muscle_strenghts.sum()
+            gsi = sum/weight.iloc[i]
+            all_gsi.append(gsi)
+
+        all_gsi_df = pd.Series(all_gsi, index=data.index)
+
+        return all_gsi_df
+
+    @staticmethod
+    def return_gsi(file_path:str, separate_legs:bool=True):
+        """
+        Parameters
+        ----------
+        file_path : str
+            Path of the excel file with all the data
+            Assuming that:
+            Right values should be in the 3-to-7 columns
+            Left values should be in the 8-to-13 columns
+
+        separate_legs : bool, optional
+            Enables to calculate the gsi for both legs (if False)
+            or for each leg (if True),
+                        by default True
+
+        Returns
+        -------
+        DataFrame
+            Returns a df with the gsi for each patient (i.e., row)
+
+        Raises
+        ------
+        ValueError
+            _description_
+        """
+
+        data = pd.read_excel(file_path)
+        weight = data['weight']
+
+        if separate_legs == True:
+            right_gsi = Process._calculate_gsi(data.iloc[:,2:7], weight)
+            left_gsi = Process._calculate_gsi(data.iloc[:,7:], weight)
+
+            return right_gsi, left_gsi
+        
+        elif separate_legs == False:
+            gsi = Process._calculate_gsi(data.iloc[:,2:], weight)
+            return gsi
+        
+        else:
+            raise ValueError("'separate_legs' was not correctly set, it should be eithe True or False.")
+
+        
+
+
