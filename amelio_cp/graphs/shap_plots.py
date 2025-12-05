@@ -1,5 +1,5 @@
 import shap
-from pandas import DataFrame
+import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.utils.validation import check_is_fitted
 
@@ -10,6 +10,7 @@ class SHAPPlots:
 
     @staticmethod
     def shap_values_calculation(model_class):
+        np.random.seed(model_class.random_state)
 
         try:
             check_is_fitted(model_class.model)
