@@ -43,10 +43,12 @@ def organized(directory):
 # Access to the features we want
 def access_struct(data, structs):
     """
-    Docstring pour access_struct
-
-    :param data: the data file previousluy loaded, which is equivalent to the MatLab structure
-    :param structs: all fields in the order to access to the wished field
+    Parameters
+    ----------
+    data : array
+        the data file previousluy loaded, which is equivalent to the MatLab structure
+    structs :
+        all fields in the order to access to the wished field
         for ex, is want to access 'measurementA' in c.results.side_struct.measurementA, structs would look like: ['c', 'results', 'side_struct', 'measurementA']
     """
     for struct in structs:
@@ -356,7 +358,29 @@ def mean_feature_extractor(
 
 
 # %% Calculates the minimum and maximum values of joints degrees of freedom.
-def collecting_angles(all_data, joint_names, side_struct, min_max: str):
+#TODO: find a way to handle both 'if' states
+def collecting_angles(all_data, joint_names, side_struct, min_max: str, separate_legs: bool):
+    """
+    Collect angle data and headers for all joints and, is separate_legs=True, for one side (Right/Left)
+
+    Parameters
+    ----------
+    all_data : array
+        kind of an array of dictionnary. It is the results when loading MatLab struct into Python.
+    joint_names : list
+        list of all joints considered
+    side_struct : string
+        name of the side considered, i.e., 'Right' or 'Left'
+    min_max : str
+        type of angles considered, i.e., 'Min' or 'Max'
+    separate_legs : bool
+        to indicate if calculation should be done for each leg (i.e., True), or for both legs (i.e., False)
+
+    Returns
+    -------
+    returns a df with all the joint data and their names (i.e., headers, e.g., 'Max_Hip_flx/ext')
+    """
+    
     sides = side_struct[0]
     joint_data = []
     headers = []
@@ -416,6 +440,7 @@ def MinMax_feature_extractor(
                 for measurement in measurements:
                     structs = ["c", "results", side_struct, measurement]
                     all_data = access_struct(data, structs)
+                    headers_glob
 
                     if measurement == "angMinAtFullStance":
                         joint_data, headers = collecting_angles(all_data, joint_names, side_struct, min_max="Min")
@@ -429,7 +454,6 @@ def MinMax_feature_extractor(
 
                     elif measurement == "baseSustentation":
                         joint_kin, header = collecting_base_sustent(all_data, side_struct)
-                        joint_kin = all_data[0, 0]["maxPreMoyenne"][0]
                         joint_data_glob.append(joint_kin)
                         headers_glob.extend(header)
 
@@ -489,10 +513,9 @@ def MinMax_feature_extractor(
                                 headers_glob.extend(joint_with_side)
 
                     elif measurement == "baseSustentation":
-                        joint_kin = all_data[0, 0]["maxPreMoyenne"][0]
+                        joint_kin, header = collecting_base_sustent(all_data, side_struct)
                         joint_data_glob.append(joint_kin)
-                        joint_with_side = ["Max" + "_" + side_struct + "_" + "BOS"]
-                        headers_glob.extend(joint_with_side)
+                        headers_glob.extend(header)
 
                     else:
                         headers.append(measurement)

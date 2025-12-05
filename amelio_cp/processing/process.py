@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 from pandas import DataFrame
 import amelio_cp.processing.old_featurExtractor as mat_to_df
@@ -183,3 +184,17 @@ class Process:
         X = all_data[selected_features]
 
         return X, y, features_names
+
+    @staticmethod
+    def save_df(df, output_path, separate_legs):
+        if separate_legs:
+            label = "leg_separated"
+        else:
+            label = "leg_not_separated"
+
+        os.makedirs(output_path, exist_ok=True)
+        nb_pp = len(df) // 2
+        filename = f"all_data_{nb_pp}pp_{label}.csv"
+        filepath = os.path.join(output_path, filename)
+        df.to_csv(filepath)
+        return filepath
