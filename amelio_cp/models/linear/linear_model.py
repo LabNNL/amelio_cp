@@ -37,12 +37,11 @@ class LinearModel:
             None  # stores the best parameters, and updates it everytime the addition of a sample allows better results
         )
         self.shap_analysis = None  # stores the shap analysis objects, if needed
-        
+
         self.random_state = 42  # sets a default random state
         self.random_state_split = self.random_state  # sets a random state for data split
         self.random_state_optim = self.random_state  # sets a random state for the optimisation
         self.random_state_cv = self.random_state  # sets a random state for the CV
-        
 
     @property
     def random_state(self):
@@ -61,6 +60,7 @@ class LinearModel:
     @property
     def random_state_split(self):
         return getattr(self, "_random_state_split", self.random_state)
+
     @random_state_split.setter
     def random_state_split(self, value):
         self._random_state_split = value
@@ -68,13 +68,15 @@ class LinearModel:
     @property
     def random_state_cv(self):
         return getattr(self, "_random_state_cv", self.random_state)
+
     @random_state_cv.setter
     def random_state_cv(self, value):
         self._random_state_cv = value
-        
+
     @property
     def random_state_optim(self):
         return getattr(self, "_random_state_optim", self.random_state)
+
     @random_state_optim.setter
     def random_state_optim(self, value):
         self._random_state_optim = value
