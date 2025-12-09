@@ -40,7 +40,7 @@ def organized(directory):
     return mat_files_sorted
 
 
-# Access to the features we want
+# Access to the selected feature, set at the last items of structs
 def access_struct(data, structs):
     """
     Parameters
