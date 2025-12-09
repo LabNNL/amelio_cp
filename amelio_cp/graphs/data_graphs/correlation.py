@@ -15,26 +15,33 @@ class Correlations:
         l, L = data.shape
 
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"corr_matrix_{title}_{correlation_method}_{timestamp}.svg"
+        filename = f"corr_matrix_{title}_{correlation_method}_{timestamp}"
 
         corr_matrix = data.corr(method=correlation_method)
 
-        plt.figure(figsize=(20, 18))
+        fig, ax = plt.subplots(figsize=(20, 18))
         sns.set(font_scale=2)
         sns.heatmap(
-            corr_matrix, annot=True, annot_kws={"size": L // 1.5}, center=0, fmt=".2f", linewidths=0.5, cmap="coolwarm"
+            corr_matrix,
+            annot=True,
+            annot_kws={"size": L // 1.5},
+            center=0,
+            fmt=".2f",
+            linewidths=0.5,
+            cmap="coolwarm",
+            ax=ax,
         )
 
-        plt.title("Correlation Matrix of " + title, fontsize=L // 16)
-        plt.tight_layout()
+        ax.set_title("Correlation Matrix of " + title, fontsize=L // 16)
+        fig.tight_layout()
+
+        if output_folder is not None:
+            os.makedirs(output_folder, exist_ok=True)
+            save_path = os.path.join(output_folder, f"{filename}.svg")
+            fig.savefig(save_path, dpi=300, bbox_inches="tight")
 
         if show:
             plt.show()
-
-        if output_folder is not None:
-            output_path = os.path.join(output_folder, filename)
-            # TODO: savefig doesn't work, need to be fixed
-            plt.savefig(output_path, bbox_inches="tight")
 
         return corr_matrix
 
