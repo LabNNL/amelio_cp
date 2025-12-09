@@ -136,7 +136,7 @@ class LinearModel:
             print("Bayesian optimisation completed.")
 
         else:
-            raise ValueError("❌ Unknown optimisation method. Choose 'random', 'bayesian' or 'bayesian_optim'.")
+            raise ValueError("Unknown optimisation method. Choose 'random', 'bayesian' or 'bayesian_optim'.")
 
         self.optim_method = method
         self.model = search.best_estimator_  # recover the best model
@@ -165,6 +165,12 @@ class LinearModel:
 
         return {"R²": r2, "MSE": mse, "CV R²": cv_r2.mean(), "CV RMSE": cv_rmse.mean()}
 
+    def test_model(self):
+        y_pred = self.model.predict(self.X_test_scaled)
+        score = self.model.score(self.X_test_scaled, self.y_test)
+        print(f"Model's score on testing data: {score:.4f}")
+        return y_pred, score
+    
     def save(self, path):
         """Save model and training data."""
         joblib.dump(
