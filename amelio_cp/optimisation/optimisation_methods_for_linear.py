@@ -11,9 +11,6 @@ class OptimisationMethodsLin(OptimisationMethods):
     @staticmethod
     def bayesian_optim(model, n_iter):
 
-        np.random.seed(model.random_state)
-        random.seed(model.random_state)
-
         pbounds = {
             "C": (1, 1000),
             "gamma": (0.001, 1),
