@@ -2,6 +2,7 @@ from .processing.process import Process
 from .models.classification.svc_model import SVCModel
 from .models.classification.classifier_model import ClassifierModel
 from .models.linear.svr_model import SVRModel
+from .models.linear.linear_model import LinearModel
 from .graphs.shap_plots import SHAPPlots
 from .graphs.classification_metrics import ClassifierMetrics
 from .optimisation.optimisation_methods import OptimisationMethods
