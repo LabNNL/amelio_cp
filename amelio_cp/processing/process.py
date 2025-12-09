@@ -253,8 +253,8 @@ class Process:
 
         Raises
         ------
-        ValueError
-            _description_
+        TypeError
+            if neither True nor False was assigned to separate_legs
         """
 
         data = pd.read_excel(file_path)
@@ -271,4 +271,4 @@ class Process:
             return gsi
 
         else:
-            raise ValueError("'separate_legs' was not correctly set, it should be eithe True or False.")
+            raise TypeError("'separate_legs' was not correctly set, it should be eithe True or False.")
