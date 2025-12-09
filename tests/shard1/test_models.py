@@ -75,7 +75,21 @@ def test_classifier_model():
                 model.random_state_optim,
             ]
         ),
-        np.array([20, 42, 42, 42]),
+        np.array([20, 20, 20, 20]),
+    )
+
+    model.random_state_cv = 36
+
+    np.testing.assert_almost_equal(
+        np.array(
+            [
+                model.random_state,
+                model.random_state_split,
+                model.random_state_cv,
+                model.random_state_optim,
+            ]
+        ),
+        np.array([20, 20, 36, 20]),
     )
 
 
