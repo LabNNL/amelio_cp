@@ -188,6 +188,7 @@ def process_files(input_directory):
 
 
 # %%--------------------------------------------------------------------------
+# TODO: transform this script into a class and remove if main
 def main(input_directory, file_path_for_ref, output_path_for_gps_cache, output_path, separate_legs=True):
     mat_files_sorted = process_files(input_directory)
 
