@@ -32,15 +32,52 @@ class LinearModel:
         }  # default param distributions, can be updated in child class
         self.primary_scoring = "neg_mean_squared_error"
         self.secondary_scoring = "r2"
+        self.optim_method = None
         self.best_params = (
             None  # stores the best parameters, and updates it everytime the addition of a sample allows better results
         )
         self.shap_analysis = None  # stores the shap analysis objects, if needed
+        
         self.random_state = 42  # sets a default random state
         self.random_state_split = self.random_state  # sets a random state for data split
         self.random_state_optim = self.random_state  # sets a random state for the optimisation
         self.random_state_cv = self.random_state  # sets a random state for the CV
-        self.optim_method = None
+        
+
+    @property
+    def random_state(self):
+        return self._random_state
+
+    @random_state.setter
+    def random_state(self, value):
+        self._random_state = value
+        # Always propagate main random_state to the specific ones; they can still
+        # be overridden individually afterward.
+        self._random_state_split = value
+        self._random_state_optim = value
+        self._random_state_cv = value
+        print("All random_state have been changed!")
+
+    @property
+    def random_state_split(self):
+        return getattr(self, "_random_state_split", self.random_state)
+    @random_state_split.setter
+    def random_state_split(self, value):
+        self._random_state_split = value
+
+    @property
+    def random_state_cv(self):
+        return getattr(self, "_random_state_cv", self.random_state)
+    @random_state_cv.setter
+    def random_state_cv(self, value):
+        self._random_state_cv = value
+        
+    @property
+    def random_state_optim(self):
+        return getattr(self, "_random_state_optim", self.random_state)
+    @random_state_optim.setter
+    def random_state_optim(self, value):
+        self._random_state_optim = value
 
     # Specific function to add the training data
     def add_train_data(self, X, y):
