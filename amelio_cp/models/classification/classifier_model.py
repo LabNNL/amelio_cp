@@ -28,17 +28,57 @@ class ClassifierModel:
             "degree": [2, 5],
             "kernel": ["linear", "poly", "rbf"],
         }
+        self.optim_method = None
         self.primary_scoring = "accuracy"
         self.secondary_scoring = "f1"
         self.best_params = (
             None  # stores the best parameters, and updates it everytime the addition of a sample allows better results
         )
         self.shap_analysis = None  # stores the shap analysis objects, if needed
+        
+        # Random states of the model
         self.random_state = 42  # setting a default rdm state
         self.random_state_split = self.random_state  # sets a random state for data split
         self.random_state_optim = self.random_state  # sets a random state for the optimisation
-        self.random_state_cv = self.random_state  # sets a random state for the CV
-        self.optim_method = None
+        self.random_state_cv =  self.random_state  # sets a random state for the CV
+
+    # Functions for setting model's random states
+    @property
+    def random_state(self):
+        return self._random_state
+
+    @random_state.setter
+    def random_state(self, value):
+        self._random_state = value
+        # Always propagate main random_state to the specific ones; they can still
+        # be overridden individually afterward.
+        self._random_state_split = value
+        self._random_state_optim = value
+        self._random_state_cv = value
+        print("All random_state have been changed!")
+
+    @property
+    def random_state_split(self):
+        return getattr(self, "_random_state_split", self.random_state)
+    @random_state_split.setter
+    def random_state_split(self, value):
+        self._random_state_split = value
+
+    @property
+    def random_state_cv(self):
+        return getattr(self, "_random_state_cv", self.random_state)
+    @random_state_cv.setter
+    def random_state_cv(self, value):
+        self._random_state_cv = value
+        
+    @property
+    def random_state_optim(self):
+        return getattr(self, "_random_state_optim", self.random_state)
+    @random_state_optim.setter
+    def random_state_optim(self, value):
+        self._random_state_optim = value
+
+
 
     # Specific function to add the training data
     def add_train_data(self, X, y):
@@ -79,7 +119,7 @@ class ClassifierModel:
     def train_and_tune(self, method: str, n_iter=100):
         """Tune hyperparameters with choosen method and fit the model."""
         if self.X_train_scaled is None or self.y_train is None:  # Check if there is some data
-            raise ValueError("❌ No data available for training.")
+            raise ValueError("No data available for training.")
 
         # Creating the optimisation loop
         if method == "random":
@@ -97,7 +137,7 @@ class ClassifierModel:
             print("Bayesian optimisation completed.")
 
         else:
-            raise ValueError("❌ Unknown optimisation method. Choose 'random', 'bayesian' or 'bayesian_optim'.")
+            raise ValueError("Unknown optimisation method. Choose 'random', 'bayesian' or 'bayesian_optim'.")
 
         self.model = search.best_estimator_  # recover the best model
         self.best_params = search.best_params_  # recover the best hp
