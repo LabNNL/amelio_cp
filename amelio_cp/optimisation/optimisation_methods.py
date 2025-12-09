@@ -68,14 +68,6 @@ class OptimisationMethods:
 
         return pbounds
 
-    # TODO: create _get_pbounds_for_xxx : rf / lin models
-    @staticmethod
-    def _get_pbounds_for_rf(model_name: str, optim_method: str, params_distrib: dict):
-        if optim_method == "random" or optim_method == "bayesian_search" or optim_method == "bayesian_optim":
-            raise NotImplementedError("Soon to be developped.")
-        else:
-            raise ValueError(f"No optimisation method named {optim_method}.")
-        return None
 
     # %% Optimisation functions
     def random_search(model, n_iter, k_folds):
