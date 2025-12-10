@@ -35,7 +35,7 @@ class Correlations:
         ax.set_title("Correlation Matrix of " + title, fontsize=L // 16)
         fig.tight_layout()
 
-        if output_folder is not None:
+        if isinstance(output_folder, str):
             os.makedirs(output_folder, exist_ok=True)
             save_path = os.path.join(output_folder, f"{filename}.svg")
             fig.savefig(save_path, dpi=300, bbox_inches="tight")
