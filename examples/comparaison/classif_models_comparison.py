@@ -22,7 +22,7 @@ def build_model(model_name, seed):
     return model
 
 
-def prepare_data(data_path, features_path, condition_to_predict, model_name):
+def prepare_data(data_path, condition_to_predict, model_name, features_path):
     all_data = Process.load_csv(data_path)
     if condition_to_predict == "VIT":
         all_data = all_data.drop(["6MWT_POST"], axis=1)
@@ -88,7 +88,7 @@ def main(model_name, seeds_list, condition_to_predict):
         starting_time = time.time()
 
         model = build_model(model_name, seed)
-        X, y, features_names = prepare_data(data_path, features_path, condition_to_predict, model_name)
+        X, y, features_names = prepare_data(data_path, condition_to_predict, model_name, features_path)
         load_data(X, y, model)
 
         model.model.train(model.X_train_scaled, model.y_train)

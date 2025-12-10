@@ -18,5 +18,6 @@ demographic_path = "datasets/sample_1/6MWT_speed_25pp_caracteristics.xlsx"
 all_data = Process().load_data(
     data_dir=data_dir, output_dir=output_dir, gps_path=gps_path, demographic_path=demographic_path, separate_legs=True
 )
+Process.save_df(all_data, output_dir)
 
 print(all_data)

@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 from pandas import DataFrame
 import amelio_cp.processing.old_featurExtractor as mat_to_df
@@ -143,3 +144,131 @@ class Process:
 
         else:
             raise ValueError("Variable not recognized. Use 'VIT', or '6MWT'.")
+
+    @staticmethod
+    # TODO: what the best? -> giving paths or dataframes?
+    # TODO: splitting in several functions for each condition
+    def prepare_data(data_path, condition_to_predict, model_name, features_path=None):
+        all_data = Process.load_csv(data_path)
+        if condition_to_predict == "VIT":
+            all_data = all_data.drop(["6MWT_POST"], axis=1)
+            all_data = all_data.dropna()
+            if model_name == "svc":
+                y = Process.calculate_MCID(all_data["VIT_PRE"], all_data["VIT_POST"], "VIT")
+                all_data = all_data.drop(["VIT_POST"], axis=1)
+            else:
+                y = all_data["VIT_POST"]
+                all_data = all_data.drop(["VIT_POST"], axis=1)
+
+        elif condition_to_predict == "6MWT":
+            all_data = all_data.drop(["VIT_POST"], axis=1)
+            all_data = all_data.dropna()
+            if model_name == "svc":
+                y = Process.calculate_MCID(all_data["6MWT_PRE"], all_data["6MWT_POST"], "6MWT", all_data["GMFCS"])
+                all_data = all_data.drop(["6MWT_POST"], axis=1)
+            else:
+                y = all_data["6MWT_POST"]
+                all_data = all_data.drop(["6MWT_POST"], axis=1)
+
+        else:
+            raise ValueError("Condition to predict not recognized. Choose either 'VIT' or '6MWT'.")
+
+        if features_path:
+            features = pd.read_excel(features_path)
+            selected_features = features["19"].dropna().to_list()
+            features_names = features["19_names"].dropna().to_list()
+        else:
+            selected_features = all_data.columns.to_list()
+            features_names = all_data.columns.to_list()
+
+        X = all_data[selected_features]
+
+        return X, y, features_names
+
+    @staticmethod
+    def save_df(df, output_path, separate_legs):
+        if separate_legs:
+            label = "leg_separated"
+        else:
+            label = "leg_not_separated"
+
+        os.makedirs(output_path, exist_ok=True)
+        nb_pp = len(df) // 2
+        filename = f"all_data_{nb_pp}pp_{label}.csv"
+        filepath = os.path.join(output_path, filename)
+        df.to_csv(filepath)
+        return filepath
+
+    def _calculate_gsi(data: DataFrame, weight: DataFrame):
+        """This function caluclates the Global Strength Index as such:
+                    GSI = (1/n)*sum(muscle_torques/weight)
+
+                    with n = number of muscles considered
+
+        Parameters
+        ----------
+        data : DataFrame
+            only the strength values to consider for the calculation of the gsi
+
+        weight : Series
+            values of weight to normalised the sum of strength
+
+        Returns
+        -------
+        DataFrame
+            with the GSI for each individual (i.e., row)
+        """
+
+        all_gsi = []
+        for i in range(len(data)):
+            muscle_strenghts = data.iloc[i]
+            sum = muscle_strenghts.sum()
+            gsi = sum / weight.iloc[i]
+            all_gsi.append(gsi)
+
+        all_gsi_df = pd.Series(all_gsi, index=data.index)
+
+        return all_gsi_df
+
+    @staticmethod
+    def return_gsi(file_path: str, separate_legs: bool = True):
+        """
+        Parameters
+        ----------
+        file_path : str
+            Path of the excel file with all the data
+            Assuming that:
+            Right values should be in the 3-to-7 columns
+            Left values should be in the 8-to-13 columns
+
+        separate_legs : bool, optional
+            Enables to calculate the gsi for both legs (if False)
+            or for each leg (if True),
+                        by default True
+
+        Returns
+        -------
+        DataFrame
+            Returns a df with the gsi for each patient (i.e., row)
+
+        Raises
+        ------
+        TypeError
+            if neither True nor False was assigned to separate_legs
+        """
+
+        data = pd.read_excel(file_path)
+        weight = data["weight"]
+
+        if separate_legs == True:
+            right_gsi = Process._calculate_gsi(data.iloc[:, 2:7], weight)
+            left_gsi = Process._calculate_gsi(data.iloc[:, 7:], weight)
+
+            return right_gsi, left_gsi
+
+        elif separate_legs == False:
+            gsi = Process._calculate_gsi(data.iloc[:, 2:], weight)
+            return gsi
+
+        else:
+            raise TypeError("'separate_legs' was not correctly set, it should be eithe True or False.")

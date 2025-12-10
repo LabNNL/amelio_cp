@@ -19,7 +19,7 @@ def load_mat_data(file):
 
 # Organize mat files in the order of PreLokomat and then PostLokomat.
 def natural_sort_key(s):
-    return [int(text) if text.isdigit() else text.lower() for text in re.split("(\d+)", s)]
+    return [int(text) if text.isdigit() else text.lower() for text in re.split(r"(\d+)", s)]
 
 
 def organized(directory):
