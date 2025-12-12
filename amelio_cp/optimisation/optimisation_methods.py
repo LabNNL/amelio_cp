@@ -68,7 +68,6 @@ class OptimisationMethods:
 
         return pbounds
 
-
     # %% Optimisation functions
     def random_search(model, n_iter, k_folds):
 

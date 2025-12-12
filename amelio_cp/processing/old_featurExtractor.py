@@ -122,6 +122,7 @@ def feature_extractor (directory, measurements, output_dir, *joint_names):
 # with the function <<feature_extractor>> is that this function calculates the output separately.
 """
 
+
 # TODO: decide whether two following func are needed
 def feature_extractor(directory, measurements, output_dir, separate_legs, *joint_names):
 

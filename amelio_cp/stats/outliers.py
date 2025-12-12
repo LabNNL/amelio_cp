@@ -7,7 +7,7 @@ class Outliers:
         pass
 
     @staticmethod
-    def finding_outliers(data:pd.DataFrame, feature:str, k:str = 1.5):
+    def finding_outliers(data: pd.DataFrame, feature: str, k: str = 1.5):
         """finds the outliers for a specific feature
 
         Parameters
@@ -28,7 +28,7 @@ class Outliers:
         s = data[feature]
         s.dropna(axis=0)
 
-        q1, q3 = s.quantile([0.25,0.75])
+        q1, q3 = s.quantile([0.25, 0.75])
         iqr = q3 - q1
 
         low_boundary, high_boundary = (q1 - k * iqr), (q3 + k * iqr)

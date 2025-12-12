@@ -16,7 +16,7 @@ selected_features = features["19"].dropna().to_list()
 features_names = features["19_names"].dropna().to_list()
 
 # %% Features and labels extraction
-X, y, features = Process.prepare_data(file_path, "VIT", 'svc', features_path)
+X, y, features = Process.prepare_data(file_path, "VIT", "svc", features_path)
 
 # %% Training the models
 

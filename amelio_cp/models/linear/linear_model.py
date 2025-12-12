@@ -167,10 +167,10 @@ class LinearModel:
 
     def test_model(self):
         y_pred = self.model.predict(self.X_test_scaled)
-        score = self.model.score(self.X_test_scaled, self.y_test) # returns r2 - coefficient of determination
+        score = self.model.score(self.X_test_scaled, self.y_test)  # returns r2 - coefficient of determination
         print(f"Model's score on testing data: {score:.4f}")
         return y_pred, score
-    
+
     def save(self, path):
         """Save model and training data."""
         joblib.dump(
