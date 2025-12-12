@@ -9,3 +9,4 @@ from .optimisation.optimisation_methods import OptimisationMethods
 from .optimisation.optimisation_methods_for_linear import OptimisationMethodsLin
 from .graphs.data_graphs.correlation import Correlations
 from .graphs.data_graphs.distribution import Distributions
+from .stats.outliers import Outliers
