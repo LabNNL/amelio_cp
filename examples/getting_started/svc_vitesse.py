@@ -3,6 +3,7 @@ from amelio_cp import Process
 from amelio_cp import SVCModel
 from amelio_cp import ClassifierMetrics
 from sklearn.metrics import classification_report
+from amelio_cp import SHAPPlots
 
 # %% Collecting/Loading the data from a csv file already created
 file_path = "datasets/sample_2/all_data_28pp.csv"
@@ -43,6 +44,8 @@ ClassifierMetrics.conf_matrix(
     SVC_vit.y_test,
     y_pred_vit_classif,
     class_names=["Non-Responder", "Responder"],
-    title="Confusion Matrix for speed classification",
-    output_path=output_path,
+    title="Confusion Matrix for speed classification"
 )
+
+SVC_vit.shap_analysis = SHAPPlots.shap_values_calculation(SVC_vit)
+SHAPPlots.plot_shap_summary(SVC_vit, features_names, show=True)

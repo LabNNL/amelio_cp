@@ -23,7 +23,7 @@ class SHAPPlots:
         return {"explainer": explainer, "shap_values": shap_values}
 
     @staticmethod
-    def plot_shap_summary(model_class, features_names: list, output_path: str, show=True):
+    def plot_shap_summary(model_class, features_names: list, output_path: str = None, show=True):
 
         shap_values = model_class.shap_analysis["shap_values"]
 
