@@ -77,5 +77,5 @@ class SHAPPlots:
             plt.savefig(f"{output_path}shap_bar_{model_class.random_state}.svg", dpi=300, bbox_inches="tight")
             print(f"SHAP bar plot saved to: {output_path}")
 
-        if show:    
+        if show:
             plt.show()

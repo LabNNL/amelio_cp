@@ -12,9 +12,11 @@ path = "examples/results/svc_vs_svr_rdm_state/random_seeds/"
 def get_param(dict, param: str):
     return [dict[key][param] for key in dict.keys()]
 
+
 def categorical_to_numerical(L):
     codes, uniques = pd.factorize(L)
     return codes.tolist(), uniques.tolist()
+
 
 def plot_scatter(path, type, cond):
     full_path = path + type + "_" + cond + ".pkl"
@@ -41,14 +43,7 @@ def plot_scatter(path, type, cond):
     cmap = cm.get_cmap("tab10")
     norm = mcolors.Normalize(vmin=0, vmax=len(kernel_names) - 1)
     legend_elements = [
-        Line2D(
-            [0], [0],
-            marker='o',
-            color='w',
-            label=kernel,
-            markerfacecolor=cmap(norm(i)),
-            markersize=8
-        )
+        Line2D([0], [0], marker="o", color="w", label=kernel, markerfacecolor=cmap(norm(i)), markersize=8)
         for i, kernel in enumerate(kernel_names)
     ]
 

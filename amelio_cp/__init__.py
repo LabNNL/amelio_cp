@@ -1,5 +1,5 @@
 from .processing.process import Process
-from .models.classification.svc_model import SVCModel
+from .models.classification.svc_model import SVCModel, SVCModelProba
 from .models.classification.classifier_model import ClassifierModel
 from .models.linear.svr_model import SVRModel
 from .models.linear.linear_model import LinearModel
@@ -10,3 +10,4 @@ from .optimisation.optimisation_methods_for_linear import OptimisationMethodsLin
 from .graphs.data_graphs.correlation import Correlations
 from .graphs.data_graphs.distribution import Distributions
 from .stats.outliers import Outliers
+from .graphs.lollipop_plot import LollipopPlot
