@@ -60,9 +60,9 @@ class SHAPPlots:
             plt.show()
 
     @staticmethod
-    def plot_shap_bar(trained_model, features_names: list):
+    def plot_shap_bar(model_class, features_names: list, output_path: str = None, show=True):
 
-        shap_values = trained_model.shap_analysis["shap_values"]
+        shap_values = model_class.shap_analysis["shap_values"]
 
         if not isinstance(shap_values, shap.Explanation):
             shap_values_bar = shap.Explanation(shap_values, feature_names=features_names)
@@ -72,4 +72,10 @@ class SHAPPlots:
         fig.set_size_inches(10, 20)
         plt.title("Weight of each feature on the ML's decision making", fontsize=25)
         plt.gca().tick_params(axis="y", labelsize=35)
-        plt.show()
+
+        if output_path:
+            plt.savefig(f"{output_path}shap_bar_{model_class.random_state}.svg", dpi=300, bbox_inches="tight")
+            print(f"SHAP bar plot saved to: {output_path}")
+
+        if show:    
+            plt.show()
