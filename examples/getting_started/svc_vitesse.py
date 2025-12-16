@@ -44,7 +44,8 @@ ClassifierMetrics.conf_matrix(
     SVC_vit.y_test,
     y_pred_vit_classif,
     class_names=["Non-Responder", "Responder"],
-    title="Confusion Matrix for speed classification"
+    title="Confusion Matrix for speed classification",
+    output_path=output_path
 )
 
 SVC_vit.shap_analysis = SHAPPlots.shap_values_calculation(SVC_vit)
