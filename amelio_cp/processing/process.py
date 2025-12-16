@@ -149,6 +149,34 @@ class Process:
     # TODO: what the best? -> giving paths or dataframes?
     # TODO: splitting in several functions for each condition
     def prepare_data(data_path, condition_to_predict, model_name, features_path=None):
+        """function that prepare the data to be suitable for the model (i.e., features, label)
+
+        Parameters
+        ----------
+        data_path : DataFrame
+            Matrix with all the data (i.e., features and labels).
+        condition_to_predict : str
+            Sets the condition to predict (i.e., 'VIT' or '6MWT' or 'GPS').
+        model_name : str
+            String to specify the model to use (i.e., 'svc', 'svr').
+        features_path : str, optional
+            Path to the Excel file containing the features to select and their names (i.e., Max_Knee_flx/ext = Maximum Knee Flexion/Extension), by default None
+
+        Returns
+        -------
+        X : DataFrame
+            Features matrix.
+        y : Series
+            Labels vector.
+        features_names : list
+            List of the names of the selected features.
+
+        Raises
+        ------
+        ValueError
+            If the condition to predict is not recognized.
+        """
+        
         all_data = Process.load_csv(data_path)
         if condition_to_predict == "VIT":
             all_data = all_data.drop(["6MWT_POST"], axis=1)
