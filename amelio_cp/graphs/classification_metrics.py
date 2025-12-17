@@ -7,7 +7,7 @@ class ClassifierMetrics:
         pass
 
     @staticmethod
-    def conf_matrix(model, y_true, y_pred, class_names: list, title: str, show=True, output_path=None):
+    def conf_matrix(model, y_true, y_pred, class_names: list, condition_to_predict: str, title: str, show=True, output_path=None):
 
         labels = class_names
         confusion_mat = confusion_matrix(y_true, y_pred)
@@ -31,7 +31,7 @@ class ClassifierMetrics:
 
         if output_path:
             plt.savefig(
-                f"{output_path}confusion_matrix_{model.name}_{model.random_state}.svg", dpi=300, bbox_inches="tight"
+                f"{output_path}confusion_matrix_{model.name}_{condition_to_predict}_{model.random_state}.svg", dpi=300, bbox_inches="tight"
             )
             print(f"Confusion matrix saved to: {output_path}")
 

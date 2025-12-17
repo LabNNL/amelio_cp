@@ -36,6 +36,8 @@ class ClassifierModel:
         )
         self.shap_analysis = None  # stores the shap analysis objects, if needed
 
+        self.dist_from_bound = None  # distance from decision boundary in classification models using decision_function
+
         # Random states of the model
         self.random_state = 42  # setting a default rdm state
         self.random_state_split = self.random_state  # sets a random state for data split

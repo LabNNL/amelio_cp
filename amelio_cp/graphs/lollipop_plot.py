@@ -12,7 +12,7 @@ class LollipopPlot:
         """Formatter to display absolute values on the X-axis."""
         return f"{abs(x):.2f}"
 
-    def plot_lollipop(self, x1, x2, y, labels, title: str, output_path: str = None, show=True):
+    def plot_lollipop(self, x1, x2, y, labels, condition_to_predict:str, title: str, output_path: str = None, show=True):
         """
         Plots a lollipop chart comparing two sets of values.
 
@@ -30,8 +30,8 @@ class LollipopPlot:
         yy = np.arange(len(y))
 
         ax.hlines(yy, x1, x2, color="gray", alpha=0.5, zorder=1)
-        ax.scatter(x1, yy, color="skyblue", alpha=1, label=labels[0])
-        ax.scatter(x2, yy, color="lightgreen", alpha=1, label=labels[1])
+        ax.scatter(x1, yy, color="skyblue", alpha=1, s=50, label=labels[0])
+        ax.scatter(x2, yy, color="lightgreen", alpha=1, s=50, label=labels[1])
         ax.vlines(x=0, ymin=-1, ymax=max(yy), color="lightgrey", alpha=0.5, zorder=1)
 
         ax.set_xlim(-1, 1)
@@ -50,7 +50,7 @@ class LollipopPlot:
         ax.text(0.85, max(yy), labels[1], horizontalalignment="center", verticalalignment="center")
 
         if output_path:
-            plt.savefig(f"{output_path}lollipop_plot.svg", dpi=300, bbox_inches="tight")
+            plt.savefig(f"{output_path}lollipop_plot_{condition_to_predict}.svg", dpi=300, bbox_inches="tight")
             print(f"Lollipop plot saved to: {output_path}")
 
         if show:

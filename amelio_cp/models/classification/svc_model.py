@@ -19,6 +19,7 @@ class SVCModel(ClassifierModel):
         }
         self.primary_scoring = "accuracy"
         self.secondary_scoring = "f1"
+        
 
 
 class SVCModelProba(ClassifierModel):
