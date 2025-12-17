@@ -8,7 +8,7 @@ from amelio_cp import LollipopPlot
 import numpy as np
 
 
-def main(file_path, condition_to_predict, feature_names_path, output_path=None):
+def main(file_path, condition_to_predict, feature_names_path, output_path=None, show=True):
     model = SVCModel()
     X, y, features_names = Process.prepare_data(file_path, condition_to_predict, model.name, feature_names_path)
     model.add_data(X, y, test_size=0.2)
@@ -30,6 +30,7 @@ def main(file_path, condition_to_predict, feature_names_path, output_path=None):
         condition_to_predict=condition_to_predict,
         title=f"Confusion Matrix for {condition_to_predict} classification",
         output_path=output_path,
+        show=show,
     )
 
     class0_idx = np.array(model.dist_from_bound) < 0
@@ -43,16 +44,18 @@ def main(file_path, condition_to_predict, feature_names_path, output_path=None):
         condition_to_predict=condition_to_predict,
         title=f"Distances from the decision boundary for {condition_to_predict}",
         output_path=output_path,
+        show=show,
     )
 
     model.shap_analysis = SHAPPlots.shap_values_calculation(model)
-    SHAPPlots.plot_shap_summary(model, features_names, condition_to_predict=condition_to_predict, output_path=output_path, show=True)
+    SHAPPlots.plot_shap_summary(model, features_names, condition_to_predict=condition_to_predict, output_path=output_path, show=show)
 
 if __name__ == "__main__":
     file_path = "datasets/sample_2/all_data_28pp.csv"
     feature_names_path = "amelio_cp/processing/Features.xlsx"
     output_path = "examples/results/svc_with_proba/"
-    conditions = ["6MWT"]
+    conditions = ["VIT", "6MWT"]
+    show=False
 
     for cond in conditions:
-        main(file_path, cond, feature_names_path, output_path)
+        main(file_path, cond, feature_names_path, output_path, show)
