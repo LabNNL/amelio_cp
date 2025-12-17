@@ -5,6 +5,7 @@ from amelio_cp import ClassifierMetrics
 from sklearn.metrics import classification_report
 from amelio_cp import SHAPPlots
 from amelio_cp import LollipopPlot
+import numpy as np
 
 
 def main(file_path, condition_to_predict, feature_names_path, output_path=None):
@@ -31,18 +32,16 @@ def main(file_path, condition_to_predict, feature_names_path, output_path=None):
         output_path=output_path,
     )
 
-    class0_proba = [prob < 0 for prob in model.dist_from_bound]
-    class1_proba = [prob > 0 for prob in model.dist_from_bound]
+    class0_idx = np.array(model.dist_from_bound) < 0
+    class1_idx = np.array(model.dist_from_bound) >= 0
     y_positions = model.y_test.index.tolist()
-    class0_ordered, class1_ordered, y_ordered = LollipopPlot.order_values(class0_proba, class1_proba, y_positions)
-
-    LollipopPlot().plot_lollipop(
-        class0_ordered,
-        class1_ordered,
-        y_ordered,
-        labels=["Class 0", "Class 1"],
+  
+    LollipopPlot().plot_lollipop_decision(
+        x=model.dist_from_bound,
+        y=y_positions,
+        labels=["Non-Responders (0)", "Responders (1)"],
         condition_to_predict=condition_to_predict,
-        title=f"Predicted Probabilities for {condition_to_predict}",
+        title=f"Distances from the decision boundary for {condition_to_predict}",
         output_path=output_path,
     )
 
