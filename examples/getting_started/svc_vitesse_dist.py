@@ -19,8 +19,11 @@ def main(file_path, condition_to_predict, feature_names_path, output_path=None, 
 
     model.dist_from_bound = model.model.decision_function(model.X_test_scaled)
     y_pred_vit_classif = model.model.predict(model.X_test_scaled)
+    print("\nTrue labels: ", model.y_test)
+    print("\nPredictions: ", y_pred_vit_classif)
     print("Accuracy test score: ", model.model.score(model.X_test_scaled, model.y_test))
     print(classification_report(model.y_test, y_pred_vit_classif), flush=True)
+    
 
     ClassifierMetrics.conf_matrix(
         model,
@@ -36,11 +39,13 @@ def main(file_path, condition_to_predict, feature_names_path, output_path=None, 
     class0_idx = np.array(model.dist_from_bound) < 0
     class1_idx = np.array(model.dist_from_bound) >= 0
     y_positions = model.y_test.index.tolist()
+    responders_mask = model.y_test.to_numpy() == y_pred_vit_classif
   
     LollipopPlot().plot_lollipop_decision(
         x=model.dist_from_bound,
         y=y_positions,
-        labels=["Non-Responders (0)", "Responders (1)"],
+        responders_mask=responders_mask,
+        labels=["Non-Responders", "Responders"],
         condition_to_predict=condition_to_predict,
         title=f"Distances from the decision boundary for {condition_to_predict}",
         output_path=output_path,
@@ -53,9 +58,10 @@ def main(file_path, condition_to_predict, feature_names_path, output_path=None, 
 if __name__ == "__main__":
     file_path = "datasets/sample_2/all_data_28pp.csv"
     feature_names_path = "amelio_cp/processing/Features.xlsx"
-    output_path = "examples/results/svc_with_proba/"
-    conditions = ["VIT", "6MWT"]
+    output_path = "examples/results/svc_with_dist/same_samples/"
+    conditions = ["VIT","6MWT"]
     show=False
 
     for cond in conditions:
+        print(f"\n\n===== Processing condition: {cond} =====\n")
         main(file_path, cond, feature_names_path, output_path, show)
