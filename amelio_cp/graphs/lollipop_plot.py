@@ -12,7 +12,7 @@ class LollipopPlot:
         """Formatter to display absolute values on the X-axis."""
         return f"{abs(x):.2f}"
 
-    def plot_lollipop_decision(self, x, y, labels, condition_to_predict:str, title: str, output_path: str = None, show=True):
+    def plot_lollipop_decision(self, x, y, labels, condition_to_predict:str, title: str, responders_mask: np.ndarray, output_path: str = None, show=True):
         """
         Plots a lollipop chart comparing two sets of values.
 
@@ -27,14 +27,24 @@ class LollipopPlot:
         """
         fig, ax = plt.subplots()
 
-        x_neg_mask = np.array(x) < 0
-        x_pos_mask = np.array(x) >= 0
-        yy = np.arange(len(y))
+        x_ordered, resp_mask_ordered, y_ordered = self.order_values(x, responders_mask, y)
+        x_neg_mask = np.array(x_ordered) < 0
+        x_pos_mask = np.array(x_ordered) >= 0
+        bad_pred_mask = ~resp_mask_ordered
 
-        ax.hlines(yy, np.zeros(len(x)), np.array(x), color="gray", alpha=0.5, zorder=1)
+        correct_neg_mask = resp_mask_ordered & x_neg_mask
+        correct_pos_mask = resp_mask_ordered & x_pos_mask
+        bad_neg_mask = bad_pred_mask & x_neg_mask
+        bad_pos_mask = bad_pred_mask & x_pos_mask
 
-        ax.scatter(np.array(x)[x_neg_mask], yy[x_neg_mask], color="skyblue", s=50, alpha=1, label=f"{labels[0]}")
-        ax.scatter(np.array(x)[x_pos_mask], yy[x_pos_mask], color="lightgreen", s=50, alpha=1, label=f"{labels[1]}")
+        yy = np.arange(len(y_ordered))
+
+        ax.hlines(yy, np.zeros(len(x_ordered)), np.array(x_ordered), color="gray", alpha=0.5, zorder=1)
+
+        ax.scatter(np.array(x_ordered)[correct_neg_mask], yy[correct_neg_mask], color="skyblue", s=50, alpha=1, label=f"{labels[0]} - correctly predicted")
+        ax.scatter(np.array(x_ordered)[correct_pos_mask], yy[correct_pos_mask], color="lightgreen", s=50, alpha=1, label=f"{labels[1]} - correctly predicted")
+        ax.scatter(np.array(x_ordered)[bad_neg_mask], yy[bad_neg_mask], color="skyblue", marker='x', s=50, alpha=1, label=f"{labels[0]} - incorrectly predicted")
+        ax.scatter(np.array(x_ordered)[bad_pos_mask], yy[bad_pos_mask], color="lightgreen", marker='x', s=50, alpha=1, label=f"{labels[1]} - incorrectly predicted")
 
         ax.vlines(x=0, ymin=-1, ymax=max(yy), color="lightgrey", alpha=0.5, zorder=1)
 
@@ -46,11 +56,11 @@ class LollipopPlot:
         formatter = FuncFormatter(self._absolute_formatter)
         ax.xaxis.set_major_formatter(formatter)
 
-        ax.set_yticks(yy, labels=y)
-        ax.set_xlabel("Probability")
+        ax.set_yticks(yy, labels=y_ordered)
+        ax.set_xlabel("Distance")
         ax.set_ylabel("Samples")
         ax.set_title(title)
-        ax.legend(fontsize=10)
+        ax.legend(fontsize=7)
 
         # ax.text(-0.85, max(yy), labels[0], horizontalalignment="center", verticalalignment="center")
         # ax.text(0.85, max(yy), labels[1], horizontalalignment="center", verticalalignment="center")
@@ -63,7 +73,7 @@ class LollipopPlot:
             plt.show()
 
     @staticmethod
-    def order_values(x1, y):
+    def order_values(x1, x2, y):
         """
         Orders the values based on the y positions.
 
@@ -75,10 +85,11 @@ class LollipopPlot:
         - Ordered x1, and y based on ascending order of y.
         """
         idx = np.argsort(y, kind="stable")  # indices that sort y ascending
-        x_sorted = np.array(x1)[idx]
+        x1_sorted = np.array(x1)[idx]
+        x2_sorted = np.array(x2)[idx]
         y_sorted = np.array(y)[idx]
         print("Values ordered for lollipop plot.")
-        return x_sorted, y_sorted
+        return x1_sorted, x2_sorted, y_sorted
     
     def plot_lollipop_proba(self, x1, x2, y, labels, title: str, output_path: str = None, show=True):
         """
