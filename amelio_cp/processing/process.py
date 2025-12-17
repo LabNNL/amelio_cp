@@ -146,6 +146,30 @@ class Process:
             raise ValueError("Variable not recognized. Use 'VIT', or '6MWT'.")
 
     @staticmethod
+    def prepare_dataframe(all_data: DataFrame, condition_to_predict: str, model_name: str):
+        conditions = ["VIT", "6MWT"] #, "GPS"]
+        if condition_to_predict not in conditions:
+            raise ValueError("Condition to predict not recognized. Choose either 'VIT', '6MWT', or 'GPS'.")
+
+        conditions.remove(condition_to_predict)
+        post_to_remove = [condition + "_POST" for condition in conditions]
+
+        all_data = all_data.drop(columns=post_to_remove)
+        all_data = all_data.dropna(axis=0)
+
+        if model_name == 'svc':
+            y = Process.calculate_MCID(
+                all_data[condition_to_predict + "_PRE"], all_data[condition_to_predict + "_POST"], condition_to_predict
+            )
+            all_data = all_data.drop(columns=[condition_to_predict + "_POST"])
+        else:
+            y = all_data[condition_to_predict + "_POST"]
+            all_data = all_data.drop(columns=[condition_to_predict + "_POST"])
+        
+        return all_data, y
+
+
+    @staticmethod
     # TODO: what the best? -> giving paths or dataframes?
     # TODO: splitting in several functions for each condition
     def prepare_data(data_path, condition_to_predict, model_name, features_path=None):
@@ -178,38 +202,19 @@ class Process:
         """
         
         all_data = Process.load_csv(data_path)
-        if condition_to_predict == "VIT":
-            all_data = all_data.drop(["6MWT_POST"], axis=1)
-            all_data = all_data.dropna()
-            if model_name == "svc":
-                y = Process.calculate_MCID(all_data["VIT_PRE"], all_data["VIT_POST"], "VIT")
-                all_data = all_data.drop(["VIT_POST"], axis=1)
-            else:
-                y = all_data["VIT_POST"]
-                all_data = all_data.drop(["VIT_POST"], axis=1)
 
-        elif condition_to_predict == "6MWT":
-            all_data = all_data.drop(["VIT_POST"], axis=1)
-            all_data = all_data.dropna()
-            if model_name == "svc":
-                y = Process.calculate_MCID(all_data["6MWT_PRE"], all_data["6MWT_POST"], "6MWT", all_data["GMFCS"])
-                all_data = all_data.drop(["6MWT_POST"], axis=1)
-            else:
-                y = all_data["6MWT_POST"]
-                all_data = all_data.drop(["6MWT_POST"], axis=1)
+        data, y = Process.prepare_dataframe(all_data, condition_to_predict, model_name)
 
-        else:
-            raise ValueError("Condition to predict not recognized. Choose either 'VIT' or '6MWT'.")
-
+        #TODO: make a fucntion that takes an array of features to select
         if features_path:
             features = pd.read_excel(features_path)
             selected_features = features["19"].dropna().to_list()
             features_names = features["19_names"].dropna().to_list()
         else:
-            selected_features = all_data.columns.to_list()
-            features_names = all_data.columns.to_list()
+            selected_features = data.columns.to_list()
+            features_names = data.columns.to_list()
 
-        X = all_data[selected_features]
+        X = data[selected_features]
 
         return X, y, features_names
 
