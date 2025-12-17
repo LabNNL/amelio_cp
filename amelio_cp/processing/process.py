@@ -148,6 +148,7 @@ class Process:
     @staticmethod
     def prepare_dataframe(all_data: DataFrame, condition_to_predict: str, model_name: str):
         conditions = ["VIT", "6MWT"] #, "GPS"]
+
         if condition_to_predict not in conditions:
             raise ValueError("Condition to predict not recognized. Choose either 'VIT', '6MWT', or 'GPS'.")
 
@@ -157,9 +158,14 @@ class Process:
         all_data = all_data.drop(columns=post_to_remove)
         all_data = all_data.dropna(axis=0)
 
+        if condition_to_predict == '6MWT':
+            gmfcs_data = all_data["GMFCS"]
+        else:
+            gmfcs_data = None
+
         if model_name == 'svc':
             y = Process.calculate_MCID(
-                all_data[condition_to_predict + "_PRE"], all_data[condition_to_predict + "_POST"], condition_to_predict
+                all_data[condition_to_predict + "_PRE"], all_data[condition_to_predict + "_POST"], condition_to_predict, gmfcs_data
             )
             all_data = all_data.drop(columns=[condition_to_predict + "_POST"])
         else:

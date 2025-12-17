@@ -360,9 +360,9 @@ def mean_feature_extractor(
 
 # %% Calculates the minimum and maximum values of joints degrees of freedom.
 # TODO: find a way to handle both 'if' states
-def collecting_angles(all_data, joint_names, side_struct, min_max: str, separate_legs: bool):
+def collecte_angles(all_data, joint_names, side_struct, min_max: str, separate_legs: bool):
     """
-    Collect angle data and headers for all joints and, is separate_legs=True, for one side (Right/Left)
+    Extract angle data and headers for all joints and, if separate_legs=True, for one side (Right/Left)
 
     Parameters
     ----------
@@ -382,19 +382,23 @@ def collecting_angles(all_data, joint_names, side_struct, min_max: str, separate
     returns a df with all the joint data and their names (i.e., headers, e.g., 'Max_Hip_flx/ext')
     """
 
-    sides = side_struct[0]
+    side = side_struct[0] # can be defined before calling the function if separate_legs=True
     joint_data = []
     headers = []
+
     for joint in joint_names:
-        for side in sides:
-            joint_with_side = side + joint
-            joint_kin = all_data[0, 0][joint_with_side][0]
-            joint_with_side_name = [
-                min_max + "_" + joint_with_side[1:] + "_" + direction
-                for direction in ["flx/ext", "abd/add", "int/ext rot"]
-            ]
-            joint_data.append(joint_kin)
-            headers.extend(joint_with_side_name)
+        joint_with_side = side + joint
+        # Extract joint kinematic data
+        joint_kin = all_data[0, 0][joint_with_side][0]
+        joint_data.append(joint_kin)
+
+        # Create corresponding headers
+        joint_with_side_name = [
+            min_max + "_" + joint_with_side[1:] + "_" + direction
+            for direction in ["flx/ext", "abd/add", "int/ext rot"]
+        ]
+        headers.extend(joint_with_side_name)
+        
     return joint_data, headers
 
 
@@ -404,6 +408,57 @@ def collecting_base_sustent(all_data, side_struct):
     joint_with_side_name = ["Max_" + side_struct + "_" + "BOS"]
 
     return joint_kin, joint_with_side_name
+
+def collect_spatiotemporal_variable(all_data, measurement):
+    """
+    Extract spatiotemporal variable (e.g., cadence)
+
+    Parameters
+    ----------
+    all_data : np.ndarray
+        MatLab structure loaded in Python
+    measurement : str
+        Name of the measurement to extract (e.g., 'cadence')
+
+    Returns
+    -------
+    Tuple[np.ndarray, str]
+        Extracted variable data and its
+    """
+    variable_data = np.asanyarray([all_data[0][0]])
+    return variable_data, measurement
+
+def process_measurement_separated_legs(all_data, measurement, joint_names, side_name):
+    """
+    Process a measurement for separated legs
+
+    Parameters
+    ----------
+    all_data : np.ndarray
+        MatLab structure loaded in Python
+    measurement : str
+        Name of the measurement to extract (e.g., 'angMinAtFullStance')
+    joint_names : list
+        List of joint names to consider
+    side_name : str
+        Side to consider ('Right' or 'Left')
+
+    Returns
+    -------
+    Tuple[np.ndarray, list]
+        Extracted variable data and its corresponding headers
+    """
+    if measurement == "angMinAtFullStance":
+        joint_data, headers = collecte_angles(all_data, joint_names, side_name, min_max="Min")
+    elif measurement == "angMaxAtFullStance":
+        joint_data, headers = collecte_angles(all_data, joint_names, side_name, min_max="Max")
+    elif measurement == "baseSustentation":
+        joint_data, headers = collecting_base_sustent(all_data, side_name)
+    else:
+        joint_data, header = collect_spatiotemporal_variable(all_data, measurement)
+        headers = [header]
+
+    return joint_data, headers
 
 
 def MinMax_feature_extractor(
