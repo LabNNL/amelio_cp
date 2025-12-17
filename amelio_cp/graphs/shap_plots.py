@@ -27,6 +27,7 @@ class SHAPPlots:
 
         shap_values = model_class.shap_analysis["shap_values"]
 
+        plt.figure()
         shap.summary_plot(
             shap_values,
             model_class.X_test_scaled,
