@@ -23,7 +23,9 @@ class SHAPPlots:
         return {"explainer": explainer, "shap_values": shap_values}
 
     @staticmethod
-    def plot_shap_summary(model_class, features_names: list, condition_to_predict: str, output_path: str = None, show=True):
+    def plot_shap_summary(
+        model_class, features_names: list, condition_to_predict: str, output_path: str = None, show=True
+    ):
 
         shap_values = model_class.shap_analysis["shap_values"]
 
@@ -54,7 +56,11 @@ class SHAPPlots:
 
         # Saving the figure if a path is provided
         if output_path:
-            plt.savefig(f"{output_path}shap_fig_{condition_to_predict}_{model_class.random_state}.svg", dpi=300, bbox_inches="tight")
+            plt.savefig(
+                f"{output_path}shap_fig_{condition_to_predict}_{model_class.random_state}.svg",
+                dpi=300,
+                bbox_inches="tight",
+            )
             print(f"SHAP plot saved to: {output_path}")
 
         if show:

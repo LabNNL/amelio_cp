@@ -12,7 +12,17 @@ class LollipopPlot:
         """Formatter to display absolute values on the X-axis."""
         return f"{abs(x):.2f}"
 
-    def plot_lollipop_decision(self, x, y, labels, condition_to_predict:str, title: str, responders_mask: np.ndarray, output_path: str = None, show=True):
+    def plot_lollipop_decision(
+        self,
+        x,
+        y,
+        labels,
+        condition_to_predict: str,
+        title: str,
+        responders_mask: np.ndarray,
+        output_path: str = None,
+        show=True,
+    ):
         """
         Plots a lollipop chart comparing two sets of values.
 
@@ -41,16 +51,46 @@ class LollipopPlot:
 
         ax.hlines(yy, np.zeros(len(x_ordered)), np.array(x_ordered), color="gray", alpha=0.5, zorder=1)
 
-        ax.scatter(np.array(x_ordered)[correct_neg_mask], yy[correct_neg_mask], color="skyblue", s=50, alpha=1, label=f"{labels[0]} - correctly predicted")
-        ax.scatter(np.array(x_ordered)[correct_pos_mask], yy[correct_pos_mask], color="lightgreen", s=50, alpha=1, label=f"{labels[1]} - correctly predicted")
-        ax.scatter(np.array(x_ordered)[bad_neg_mask], yy[bad_neg_mask], color="skyblue", marker='x', s=50, alpha=1, label=f"{labels[0]} - incorrectly predicted")
-        ax.scatter(np.array(x_ordered)[bad_pos_mask], yy[bad_pos_mask], color="lightgreen", marker='x', s=50, alpha=1, label=f"{labels[1]} - incorrectly predicted")
+        ax.scatter(
+            np.array(x_ordered)[correct_neg_mask],
+            yy[correct_neg_mask],
+            color="skyblue",
+            s=50,
+            alpha=1,
+            label=f"{labels[0]} - correctly predicted",
+        )
+        ax.scatter(
+            np.array(x_ordered)[correct_pos_mask],
+            yy[correct_pos_mask],
+            color="lightgreen",
+            s=50,
+            alpha=1,
+            label=f"{labels[1]} - correctly predicted",
+        )
+        ax.scatter(
+            np.array(x_ordered)[bad_neg_mask],
+            yy[bad_neg_mask],
+            color="skyblue",
+            marker="x",
+            s=50,
+            alpha=1,
+            label=f"{labels[0]} - incorrectly predicted",
+        )
+        ax.scatter(
+            np.array(x_ordered)[bad_pos_mask],
+            yy[bad_pos_mask],
+            color="lightgreen",
+            marker="x",
+            s=50,
+            alpha=1,
+            label=f"{labels[1]} - incorrectly predicted",
+        )
 
         ax.vlines(x=0, ymin=-1, ymax=max(yy), color="lightgrey", alpha=0.5, zorder=1)
 
-        ax.set_xlim(ax.get_xlim()[0]-0.1, ax.get_xlim()[1]+0.1)
-        ax.axvspan(ax.get_xlim()[0]-0.1, 0, color="skyblue", alpha=0.15)  # class 0
-        ax.axvspan(0, ax.get_xlim()[1]+0.1, color="lightgreen", alpha=0.15)  # class 1
+        ax.set_xlim(ax.get_xlim()[0] - 0.1, ax.get_xlim()[1] + 0.1)
+        ax.axvspan(ax.get_xlim()[0] - 0.1, 0, color="skyblue", alpha=0.15)  # class 0
+        ax.axvspan(0, ax.get_xlim()[1] + 0.1, color="lightgreen", alpha=0.15)  # class 1
 
         # Apply the absolute value formatter to the X-axis
         formatter = FuncFormatter(self._absolute_formatter)
@@ -90,7 +130,7 @@ class LollipopPlot:
         y_sorted = np.array(y)[idx]
         print("Values ordered for lollipop plot.")
         return x1_sorted, x2_sorted, y_sorted
-    
+
     def plot_lollipop_proba(self, x1, x2, y, labels, title: str, output_path: str = None, show=True):
         """
         Plots a lollipop chart comparing two sets of values.

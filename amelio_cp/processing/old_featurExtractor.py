@@ -382,7 +382,7 @@ def collecte_angles(all_data, joint_names, side_struct, min_max: str, separate_l
     returns a df with all the joint data and their names (i.e., headers, e.g., 'Max_Hip_flx/ext')
     """
 
-    side = side_struct[0] # can be defined before calling the function if separate_legs=True
+    side = side_struct[0]  # can be defined before calling the function if separate_legs=True
     joint_data = []
     headers = []
 
@@ -394,11 +394,10 @@ def collecte_angles(all_data, joint_names, side_struct, min_max: str, separate_l
 
         # Create corresponding headers
         joint_with_side_name = [
-            min_max + "_" + joint_with_side[1:] + "_" + direction
-            for direction in ["flx/ext", "abd/add", "int/ext rot"]
+            min_max + "_" + joint_with_side[1:] + "_" + direction for direction in ["flx/ext", "abd/add", "int/ext rot"]
         ]
         headers.extend(joint_with_side_name)
-        
+
     return joint_data, headers
 
 
@@ -408,6 +407,7 @@ def collecting_base_sustent(all_data, side_struct):
     joint_with_side_name = ["Max_" + side_struct + "_" + "BOS"]
 
     return joint_kin, joint_with_side_name
+
 
 def collect_spatiotemporal_variable(all_data, measurement):
     """
@@ -427,6 +427,7 @@ def collect_spatiotemporal_variable(all_data, measurement):
     """
     variable_data = np.asanyarray([all_data[0][0]])
     return variable_data, measurement
+
 
 def process_measurement_separated_legs(all_data, measurement, joint_names, side_name):
     """

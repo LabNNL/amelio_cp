@@ -147,7 +147,7 @@ class Process:
 
     @staticmethod
     def prepare_dataframe(all_data: DataFrame, condition_to_predict: str, model_name: str):
-        conditions = ["VIT", "6MWT"] #, "GPS"]
+        conditions = ["VIT", "6MWT"]  # , "GPS"]
 
         if condition_to_predict not in conditions:
             raise ValueError("Condition to predict not recognized. Choose either 'VIT', '6MWT', or 'GPS'.")
@@ -158,22 +158,24 @@ class Process:
         all_data = all_data.drop(columns=post_to_remove)
         all_data = all_data.dropna(axis=0)
 
-        if condition_to_predict == '6MWT':
+        if condition_to_predict == "6MWT":
             gmfcs_data = all_data["GMFCS"]
         else:
             gmfcs_data = None
 
-        if model_name == 'svc':
+        if model_name == "svc":
             y = Process.calculate_MCID(
-                all_data[condition_to_predict + "_PRE"], all_data[condition_to_predict + "_POST"], condition_to_predict, gmfcs_data
+                all_data[condition_to_predict + "_PRE"],
+                all_data[condition_to_predict + "_POST"],
+                condition_to_predict,
+                gmfcs_data,
             )
             all_data = all_data.drop(columns=[condition_to_predict + "_POST"])
         else:
             y = all_data[condition_to_predict + "_POST"]
             all_data = all_data.drop(columns=[condition_to_predict + "_POST"])
-        
-        return all_data, y
 
+        return all_data, y
 
     @staticmethod
     # TODO: what the best? -> giving paths or dataframes?
@@ -206,12 +208,12 @@ class Process:
         ValueError
             If the condition to predict is not recognized.
         """
-        
+
         all_data = Process.load_csv(data_path)
 
         data, y = Process.prepare_dataframe(all_data, condition_to_predict, model_name)
 
-        #TODO: make a fucntion that takes an array of features to select
+        # TODO: make a fucntion that takes an array of features to select
         if features_path:
             features = pd.read_excel(features_path)
             selected_features = features["19"].dropna().to_list()

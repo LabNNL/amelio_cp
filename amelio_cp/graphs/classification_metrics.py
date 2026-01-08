@@ -7,12 +7,16 @@ class ClassifierMetrics:
         pass
 
     @staticmethod
-    def conf_matrix(model, y_true, y_pred, class_names: list, condition_to_predict: str, title: str, show=True, output_path=None):
+    # TODO: separate the printable confusion matrix and the displayed plot (in 2 func, or with an option)
+    def conf_matrix(
+        model, y_true, y_pred, class_names: list, condition_to_predict: str, title: str, show=True, output_path=None
+    ):
 
         labels = class_names
         confusion_mat = confusion_matrix(y_true, y_pred)
         print(f"Confusion Matrix for:\n", confusion_mat)
         disp = ConfusionMatrixDisplay(confusion_mat, display_labels=labels)
+
         fig, ax = plt.subplots(figsize=(8, 6))  # Adjust the size if necessary
         disp.plot(ax=ax)
         # Adjust font sizes for title, labels, and ticks
@@ -31,7 +35,9 @@ class ClassifierMetrics:
 
         if output_path:
             plt.savefig(
-                f"{output_path}confusion_matrix_{model.name}_{condition_to_predict}_{model.random_state}.svg", dpi=300, bbox_inches="tight"
+                f"{output_path}confusion_matrix_{model.name}_{condition_to_predict}_{model.random_state}.svg",
+                dpi=300,
+                bbox_inches="tight",
             )
             print(f"Confusion matrix saved to: {output_path}")
 
