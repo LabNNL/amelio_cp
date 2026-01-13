@@ -147,6 +147,29 @@ class Process:
 
     @staticmethod
     def prepare_dataframe(all_data: DataFrame, condition_to_predict: str, model_name: str):
+        """This function prepare the data, to have the features on one side (X)
+        and the labels on the other side (y)
+
+        Parameters
+        ----------
+        all_data : DataFrame
+            The whole matrix with features and labels.
+        condition_to_predict : str
+            Which condition to predict (i.e., 'VIT' or '6MWT' or 'GPS').
+        model_name : str
+            Model to use (i.e., 'svc' or 'svr').
+
+        Returns
+        -------
+        tuple
+            Features matrix (X) and labels vector (y).
+
+        Raises
+        ------
+        ValueError
+            _description_
+        """
+
         conditions = ["VIT", "6MWT"]  # , "GPS"]
 
         if condition_to_predict not in conditions:
@@ -170,12 +193,12 @@ class Process:
                 condition_to_predict,
                 gmfcs_data,
             )
-            all_data = all_data.drop(columns=[condition_to_predict + "_POST"])
+            X = all_data.drop(columns=[condition_to_predict + "_POST"])
         else:
             y = all_data[condition_to_predict + "_POST"]
-            all_data = all_data.drop(columns=[condition_to_predict + "_POST"])
+            X = all_data.drop(columns=[condition_to_predict + "_POST"])
 
-        return all_data, y
+        return X, y
 
     @staticmethod
     # TODO: what the best? -> giving paths or dataframes?

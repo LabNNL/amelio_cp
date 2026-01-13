@@ -11,11 +11,13 @@ import joblib
 class ClassifierModel:
     def __init__(self):
 
-        self.name = None  # can name the model to call them then (i.e.SVRModel("Model A")), or can only initiate then such as model_A = SVRModel()
+        self.name = None  # can name the model to call it then (i.e., SVRModel("Model A")),
+        # or can only initiate then such as model_A = SVRModel()
         self.model = None  # will store the best model, should be updated each time
         self.scaler = StandardScaler()  # scaler used in data scaling
         self.X_train = (
-            None  # features of training dataset, start with nothing, but will be completed each time w/ a new sample
+            None  # features of training dataset, start with nothing, but will be completed
+            # each time w/ a new sample
         )
         self.X_train_scaled = None  # scaled features of training dataset
         self.y_train = None  # labels of training dataset, IDEM
