@@ -410,7 +410,9 @@ def collecting_angles(
         # Extract joint kinematic data
         if separated_legs:
             joint_kin = all_data[0, 0][joint_with_side][0]
-            joint_with_side_name = [min_max + "_" + joint_with_side[1:] + "_" + direction for direction in joint_directions]
+            joint_with_side_name = [
+                min_max + "_" + joint_with_side[1:] + "_" + direction for direction in joint_directions
+            ]
         else:
             joint_kin = all_data[0, 0][joint_with_side][0][0]
             joint_with_side_name = [min_max + "_" + joint_with_side + "_" + direction for direction in joint_directions]
@@ -495,13 +497,13 @@ def process_measurement(
     """
 
     if measurement == "angMinAtFullStance":
-        side = side_name[0] # 'R' for 'Right', 'L' for 'Left'
+        side = side_name[0]  # 'R' for 'Right', 'L' for 'Left'
         joint_data, headers = collecting_angles(
             all_data, joint_names, side, min_max="Min", separated_legs=separated_legs
         )
 
     elif measurement == "angMaxAtFullStance":
-        side = side_name[0] # 'R' for 'Right', 'L' for 'Left'
+        side = side_name[0]  # 'R' for 'Right', 'L' for 'Left'
         joint_data, headers = collecting_angles(
             all_data, joint_names, side, min_max="Max", separated_legs=separated_legs
         )
@@ -561,19 +563,12 @@ def process_separated_legs(
             headers_combined.extend(headers)
 
         # Flatten and reshape data
-        print(f"\n=== Debugging Subject {file_number + 1}, Side {side_name} ===")
-        print(f"Total items in joint_data_combined: {len(joint_data_combined)}")
-        for idx, item in enumerate(joint_data_combined):
-            print(
-                f"Index {idx}: type={type(item)}, shape={np.array(item).shape}, ndim={np.array(item).ndim}, value preview={item if np.array(item).size <= 5 else '...'}"
-            )
-        print("=" * 60)
         all_scalars = all(np.ndim(x) == 0 for x in joint_data_combined)
         if all_scalars:
             flattened_data = np.array(joint_data_combined, dtype=float)
         else:
-            flattened_data = np.concatenate(joint_data_combined) # Flatten the data
-        flattened_data = flattened_data.reshape(1, -1) # and reshape the joint_data.
+            flattened_data = np.concatenate(joint_data_combined)  # Flatten the data
+        flattened_data = flattened_data.reshape(1, -1)  # and reshape the joint_data.
         processed_data.append(flattened_data)  # Store flattened data for the considered side.
 
         # Save individual file
@@ -584,6 +579,62 @@ def process_separated_legs(
     print(f"Data extracted for Subject {file_number + 1} (separated legs)")
     return processed_data
 
+
+def process_combined_legs(
+    data: np.ndarray, measurements: List[str], joint_names: List[str], file_number: int, output_dir: str
+) -> np.ndarray:
+    """
+    Process one data file with both legs combined into a single row.
+
+    Parameters
+    ----------
+    data : np.ndarray
+        Loaded MATLAB data structure
+    measurements : List[str]
+        Measurements to extract
+    joint_names : List[str]
+        Joints to process
+    file_number : int
+        Subject/file number for naming
+    output_dir : str
+        Directory to save output files
+
+    Returns
+    -------
+    np.ndarray
+        Processed data array with both legs
+    """
+    joint_data_combined = []
+    headers_combined = []
+
+    for side_name in sides:
+        for measurement in measurements:
+            structs = ["c", "results", side_name, measurement]
+            all_data = access_struct(data, structs)
+
+            joint_data, headers = process_measurement(
+                all_data, measurement, joint_names, side_name, separated_legs=False
+            )
+
+            joint_data_combined.extend(joint_data)
+            headers_combined.extend(headers)
+
+    # Flatten and reshape data
+    all_scalars = all(np.ndim(x) == 0 for x in joint_data_combined)
+    if all_scalars:
+        flattened_data = np.array(joint_data_combined, dtype=float)
+    else:
+        flattened_data = np.concatenate(joint_data_combined)  # Flatten the data
+    flattened_data = flattened_data.reshape(1, -1)  # and reshape the joint_data.
+    # Save individual file
+    df = pd.DataFrame(flattened_data, columns=headers_combined)
+    filename = (
+        f"Subject{file_number + 1}_Lokomat.csv"  # no need to specify pre/post since only the pre files are processed
+    )
+    df.to_csv(os.path.join(output_dir, filename), index=False)
+
+    print(f"Data extracted for Subject {file_number + 1} (both legs together)")
+    return flattened_data
 
 
 def min_max_feature_extractor(
