@@ -1,8 +1,14 @@
 import pandas as pd
 import numpy as np
+from typing import List, Union, Tuple
 import os
 import re
 from scipy.io import loadmat
+
+# Prerequisite information:
+joint_names = ["Pelvis", "Hip", "Knee", "Ankle", "FootProgress"]
+joint_directions = ["flx/ext", "abd/add", "int/ext rot"]
+sides = ["Right", "Left"]
 
 
 # READ .mat  FILES IN PYTHON
@@ -242,9 +248,9 @@ def mean_feature_extractor(
     directory,
     measurements,
     output_dir,
-    separate_legs: bool,
+    separated_legs: bool,
     output_shape=pd.DataFrame,
-    joint_names=["Hip", "Knee", "Ankle", "FootProgress"]
+    joint_names=["Hip", "Knee", "Ankle", "FootProgress"],
 ):
     # The function calculates the mean value of kinematic parameters during the whole gait cycle.
     # Outout: mean value of each
@@ -259,7 +265,7 @@ def mean_feature_extractor(
         side_structs = ["Right", "Left"]
 
         # -------- Calculate while the info should be extracted separately --------
-        if separate_legs == True:
+        if separated_legs == True:
 
             for side_struct in side_structs:
                 joint_data = []
@@ -395,7 +401,6 @@ def collecting_angles(
         Joint data arrays and corresponding column headers (e.g., 'Max_Hip_flx/ext')
     """
 
-    side = side_struct[0]  # can be defined before calling the function if separate_legs=True
     joint_data = []
     headers = []
 
@@ -405,15 +410,14 @@ def collecting_angles(
         # Extract joint kinematic data
         if separated_legs:
             joint_kin = all_data[0, 0][joint_with_side][0]
+            joint_with_side_name = [min_max + "_" + joint_with_side[1:] + "_" + direction for direction in joint_directions]
         else:
             joint_kin = all_data[0, 0][joint_with_side][0][0]
+            joint_with_side_name = [min_max + "_" + joint_with_side + "_" + direction for direction in joint_directions]
 
-        joint_data.append(joint_kin)
+        joint_data.extend(joint_kin)
 
         # Create corresponding headers
-        joint_with_side_name = [min_max + "_" + joint_with_side[1:] + "_" + direction for direction in joint_directions]
-            min_max + "_" + joint_with_side[1:] + "_" + direction for direction in ["flx/ext", "abd/add", "int/ext rot"]
-        ]
         headers.extend(joint_with_side_name)
 
     return joint_data, headers
@@ -437,7 +441,7 @@ def collecting_base_sustent(all_data: np.ndarray, side_struct: str):
     """
 
     joint_kin = all_data[0, 0]["maxPreMoyenne"][0]
-    joint_with_side_name = ["Max_" + side_struct + "_" + "BOS"]
+    joint_kin = np.atleast_1d(joint_kin)
     joint_with_side_name = ["Max_" + side_struct + "_BOS"]
 
     return joint_kin, joint_with_side_name
@@ -459,11 +463,15 @@ def collecting_spatiotemporal_variable(all_data: np.ndarray, measurement: str):
     Tuple[np.ndarray, str]
         Extracted variable data and its
     """
-    variable_data = np.asanyarray([all_data[0][0]])
+    variable_data = np.atleast_1d(np.asanyarray([all_data[0][0]]))
     return variable_data, measurement
 
 
-def process_measurement_separated_legs(all_data, measurement, joint_names, side_name):
+## Main functions for MinMax feature extraction
+# if sperataed_legs == True: use this function
+def process_measurement(
+    all_data: np.ndarray, measurement: str, joint_names: List[str], side_name: str, separated_legs: bool = True
+) -> Tuple[List[np.ndarray], List[str]]:
     """
     Process a measurement for separated legs
 
@@ -473,167 +481,220 @@ def process_measurement_separated_legs(all_data, measurement, joint_names, side_
         MatLab structure loaded in Python
     measurement : str
         Name of the measurement to extract (e.g., 'angMinAtFullStance')
-    joint_names : list
+    joint_names : List[str]
         List of joint names to consider
     side_name : str
         Side to consider ('Right' or 'Left')
+    separated_legs : bool, optional
+        If True, extract full arrays; if False, extract scalar values, by default True.
 
     Returns
     -------
-    Tuple[np.ndarray, list]
+    Tuple[List[np.ndarray], List[str]]
         Extracted variable data and its corresponding headers
     """
+
     if measurement == "angMinAtFullStance":
-        joint_data, headers = collecte_angles(all_data, joint_names, side_name, min_max="Min")
+        side = side_name[0] # 'R' for 'Right', 'L' for 'Left'
+        joint_data, headers = collecting_angles(
+            all_data, joint_names, side, min_max="Min", separated_legs=separated_legs
+        )
+
     elif measurement == "angMaxAtFullStance":
-        joint_data, headers = collecte_angles(all_data, joint_names, side_name, min_max="Max")
+        side = side_name[0] # 'R' for 'Right', 'L' for 'Left'
+        joint_data, headers = collecting_angles(
+            all_data, joint_names, side, min_max="Max", separated_legs=separated_legs
+        )
+
     elif measurement == "baseSustentation":
-        joint_data, headers = collecting_base_sustent(all_data, side_name)
+        joint_data, headers = collecting_base_sustent(all_data, side)
+
     else:
-        joint_data, header = collect_spatiotemporal_variable(all_data, measurement)
+        joint_data, header = collecting_spatiotemporal_variable(all_data, measurement)
         headers = [header]
 
     return joint_data, headers
 
 
-def MinMax_feature_extractor(
-    *,
-    directory,
-    measurements,
-    output_dir,
-    separate_legs: bool,
-    output_shape=pd.DataFrame,
-    joint_names=["Pelvis", "Hip", "Knee", "Ankle", "FootProgress"]
+def process_separated_legs(
+    data: np.ndarray, measurements: List[str], joint_names: List[str], file_number: int, output_dir: str
+) -> List[np.ndarray]:
+    """
+    Process one data file with legs separated into individual rows.
+
+    Parameters
+    ----------
+    data : np.ndarray
+        Loaded MATLAB data structure
+    measurements : List[str]
+        Measurements to extract
+    joint_names : List[str]
+        Joints to process
+    file_number : int
+        Subject/file number for naming
+    output_dir : str
+        Directory to save output files
+
+    Returns
+    -------
+    List[np.ndarray]
+        Processed data arrays for both legs
+    """
+
+    processed_data = []
+
+    for side_name in sides:
+        # Initialize lists to hold combined data and headers
+        joint_data_combined = []
+        headers_combined = []
+
+        # For each measurement, process and collect data
+        for measurement in measurements:
+            structs = ["c", "results", side_name, measurement]
+            all_data = access_struct(data, structs)
+
+            joint_data, headers = process_measurement(
+                all_data, measurement, joint_names, side_name, separated_legs=True
+            )
+
+            joint_data_combined.extend(joint_data)
+            headers_combined.extend(headers)
+
+        # Flatten and reshape data
+        print(f"\n=== Debugging Subject {file_number + 1}, Side {side_name} ===")
+        print(f"Total items in joint_data_combined: {len(joint_data_combined)}")
+        for idx, item in enumerate(joint_data_combined):
+            print(
+                f"Index {idx}: type={type(item)}, shape={np.array(item).shape}, ndim={np.array(item).ndim}, value preview={item if np.array(item).size <= 5 else '...'}"
+            )
+        print("=" * 60)
+        all_scalars = all(np.ndim(x) == 0 for x in joint_data_combined)
+        if all_scalars:
+            flattened_data = np.array(joint_data_combined, dtype=float)
+        else:
+            flattened_data = np.concatenate(joint_data_combined) # Flatten the data
+        flattened_data = flattened_data.reshape(1, -1) # and reshape the joint_data.
+        processed_data.append(flattened_data)  # Store flattened data for the considered side.
+
+        # Save individual file
+        df = pd.DataFrame(flattened_data, columns=headers_combined)
+        filename = f"Subject{file_number + 1}_{side_name[0]}_Lokomat.csv"  # no need to specify pre/post since only the pre files are processed
+        df.to_csv(os.path.join(output_dir, filename), index=False)
+
+    print(f"Data extracted for Subject {file_number + 1} (separated legs)")
+    return processed_data
+
+
+
+def min_max_feature_extractor(
+    directory: str,
+    measurements: List[str],
+    output_dir: str,
+    separated_legs: bool = True,
+    joint_names: List[str] = None,
+    output_shape: type = pd.DataFrame,
 ):
-    # Outout: min and max value of each
-    count = 0
-    combined_data = []
-    side_structs = ["Right", "Left"]
-    data_names = organized(directory)
+    """
+    This is the main function that extracts min/max kinematic and spatiotemporal
+    features from Lokomat data files.
+
+    This function processes MATLAB structure files containing gait analysis data,
+    extracting angle measurements and spatiotemporal parameters for specified joints.
+
+    Parameters
+    ----------
+    directory : str
+        Path to the directory containing the .mat files.
+    measurements : List[str]
+        List of measurements to extract (e.g., ['pctToeOff', 'baseSustentation']), already defined at the begining of the code file.
+        Note: 'angMinAtFullStance' and 'angMaxAtFullStance' are automatically added.
+    output_dir : str
+        Directory to save the extracted feature CSV files.
+    separated_legs : bool, optional
+        If True, creates separate rows for each leg.
+        If False, combines both legs into a single row.
+        By default, True.
+    output_shape : type, default=pd.DataFrame
+        Return type (pd.DataFrame or np.ndarray) of the combined features for all subjects.
+
+    Returns
+    -------
+    Union[pd.DataFrame, np.ndarray]
+        Combined data for all subjects in specified format.
+
+     Examples
+    --------
+    >>> min_max_feature_extractor(
+    ...     directory='./data/lokomat',
+    ...     measurements=['pctToeOff', 'cadence'],
+    ...     output_dir='./output',
+    ...     separated_legs=True,
+    ...     joint_names=['Hip', 'Knee', 'Ankle']
+    ... )
+    """
+
+    # Set defaults
+    if joint_names is None:
+        joint_names = joint_names
+
+    # Ensure angle measurements are included
     if "angMaxAtFullStance" not in measurements:
         measurements.insert(0, "angMaxAtFullStance")
     if "angMinAtFullStance" not in measurements:
         measurements.insert(0, "angMinAtFullStance")
+    if "angAtFullCycle" in measurements:
+        measurements.remove("angAtFullCycle")  # Not relevant for Min/Max extraction
 
-    for file_number, file in enumerate(data_names, start=0):
-        file_path = str()
-        file_path = os.path.join(directory, file)
+    # Get file list
+    data_files = organized(directory)
+
+    # Process all files
+    all_processed_data = []
+
+    for file_number, filename in enumerate(data_files):
+        file_path = os.path.join(directory, filename)
         data = load_data(file_path)
 
-        # -------- Calculate while the info should be extracted separately --------
-        if separate_legs == True:
-
-            for side_struct in side_structs:
-                joint_data_glob = []
-                headers_glob = []
-                count += 1
-
-                for measurement in measurements:
-                    structs = ["c", "results", side_struct, measurement]
-                    all_data = access_struct(data, structs)
-                    headers_glob
-
-                    if measurement == "angMinAtFullStance":
-                        joint_data, headers = collecting_angles(all_data, joint_names, side_struct, min_max="Min")
-                        joint_data_glob.extend(joint_data)
-                        headers_glob.extend(headers)
-
-                    elif measurement == "angMaxAtFullStance":
-                        joint_data, headers = collecting_angles(all_data, joint_names, side_struct, min_max="Max")
-                        joint_data_glob.extend(joint_data)
-                        headers_glob.extend(headers)
-
-                    elif measurement == "baseSustentation":
-                        joint_kin, header = collecting_base_sustent(all_data, side_struct)
-                        joint_data_glob.append(joint_kin)
-                        headers_glob.extend(header)
-
-                    else:
-                        headers_glob.append(measurement)
-                        spatiotemporal_variable = np.asanyarray([all_data[0][0]])
-                        joint_data_glob.append(spatiotemporal_variable)
-
-                joint_data_glob = np.concatenate(
-                    joint_data_glob
-                )  # Flatten the joint_data to get it ready for reshapeing.
-                joint_data_glob = joint_data_glob.reshape(1, -1)
-                combined_data.append(joint_data_glob)
-                joint_data_side = pd.DataFrame(joint_data_glob, columns=headers_glob)
-                joint_data_side.to_csv(
-                    output_dir + "Subject%d_%s_Lokomat.csv" % ((file_number + 1), side_struct[0]), index=False
-                )
-
-            print("The data for the Subject %d is extracted, separated legs." % (file_number + 1))
-
-        # -------- Calculate while the info should be extracted together --------
+        if separated_legs:
+            processed = process_separated_legs(data, measurements, joint_names, file_number, output_dir)
+            all_processed_data.extend(processed)
         else:
-            joint_data_glob = []
-            headers_glob = []
-            count += 1
-            for side_struct in side_structs:
+            processed = process_combined_legs(data, measurements, joint_names, file_number, output_dir)
+            all_processed_data.append(processed)
 
-                for measurement in measurements:
+    # Combine all data
+    combined_data = np.vstack(all_processed_data)
 
-                    structs = ["c", "results", side_struct, measurement]
-                    all_data = access_struct(data, structs)
+    # Get headers from the last processed file (they're consistent across files)
+    last_csv = pd.read_csv(
+        os.path.join(output_dir, f"Subject{len(data_files)}{'_L' if separated_legs else ''}_Lokomat.csv")
+    )
+    headers = last_csv.columns.tolist()
 
-                    if measurement == "angMinAtFullStance":
-                        sides = side_struct[0]
-                        for joint in joint_names:
-                            for side in sides:
-                                joint_with_side = side + joint
-                                joint_kin = all_data[0, 0][joint_with_side][0][0]
-                                joint_data_glob.append(joint_kin)
-                                joint_with_side = [
-                                    "Min" + "_" + joint_with_side + "_" + direction
-                                    for direction in ["flx/ext", "abd/add", "int/ext rot"]
-                                ]
-                                headers_glob.extend(joint_with_side)
+    # Save combined file
+    df_all = pd.DataFrame(combined_data, columns=headers)
+    # df_all.to_csv(os.path.join(output_dir, "all_files.csv"), index=False)
 
-                    elif measurement == "angMaxAtFullStance":
-                        sides = side_struct[0]
-                        for joint in joint_names:
-                            for side in sides:
-                                joint_with_side = side + joint
-                                joint_kin = all_data[0, 0][joint_with_side][0][0]
-                                joint_data_glob.append(joint_kin)
-                                joint_with_side = [
-                                    "Max" + "_" + joint_with_side + "_" + direction
-                                    for direction in ["flx/ext", "abd/add", "int/ext rot"]
-                                ]
-                                headers_glob.extend(joint_with_side)
+    # Return in requested format
+    return df_all if output_shape == pd.DataFrame else combined_data
 
-                    elif measurement == "baseSustentation":
-                        joint_kin, header = collecting_base_sustent(all_data, side_struct)
-                        joint_data_glob.append(joint_kin)
-                        headers_glob.extend(header)
 
-                    else:
-                        headers.append(measurement)
-                        spatiotemporal_variable = np.asanyarray([all_data[0][0]])
-                        joint_data_glob.append(spatiotemporal_variable)
+# %% Example of Use
 
-            joint_data_glob = np.concatenate(joint_data_glob)  # Flatten the joint_data to get it ready for reshapeing.
-            joint_data_glob = joint_data_glob.reshape(1, -1)
-            combined_data.append(joint_data_glob)
-            joint_data_side = pd.DataFrame(joint_data_glob, columns=headers_glob)
-            joint_data_side.to_csv(output_dir + "Subject%d_Lokomat.csv" % (file_number + 1), index=False)
-            print("The data for the Subject %d is extracted, both legs together." % (file_number + 1))
-
-    combined_data = np.concatenate(combined_data)  # Flatten the joint_data to get it ready for reshapeing.
-    combined_data = combined_data.reshape(count, -1)
-    all_files = pd.DataFrame(combined_data, columns=headers_glob)
-    all_files.to_csv(output_dir + r"all_files.csv", index=False)
-
-    if output_shape == pd.DataFrame:
-        return all_files  # while outputting pandas dataframe
-    else:
-        return combined_data  # While outputting numpy array
+if __name__ == "__main__":
+    # Example usage
+    result = min_max_feature_extractor(
+        directory="/Users/mathildetardif/Documents/Python/Biomarkers/prediction_amelioration/datasets/sample_1/raw_data",
+        measurements=["angAtFullCycle", "pctToeOff", "pctToeOffOppose"],
+        output_dir="/Users/mathildetardif/Documents/Python/Biomarkers/prediction_amelioration/datasets/sample_1/processed_data",
+        separated_legs=True,
+        joint_names=["Hip", "Knee", "Ankle"],
+    )
 
 
 # example of use
 # mean_feature_extractor(directory = r'D:\Sina Tabeiy\Project\Lokomat Data (matfiles)\Sample',
 #                   measurements = ['angAtFullCycle', 'pctToeOff', 'pctToeOffOppose'],
-#                   separate_legs = False,
+#                   separated_legs = False,
 #                   output_dir = 'D:\Sina Tabeiy\Project\Lokomat Data (matfiles)\Sample',
 #                   joint_names = ['Hip', 'Knee', 'Ankle'])
