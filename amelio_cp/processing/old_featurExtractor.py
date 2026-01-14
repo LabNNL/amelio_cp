@@ -45,12 +45,19 @@ def access_struct(data, structs):
     """
     Parameters
     ----------
-    data : array
-        the data file previousluy loaded, which is equivalent to the MatLab structure
-    structs :
-        all fields in the order to access to the wished field
-        for ex, is want to access 'measurementA' in c.results.side_struct.measurementA, structs would look like: ['c', 'results', 'side_struct', 'measurementA']
+    data : np.array
+        The data file previously loaded, which is equivalent to the MatLab structure
+    structs : List[str]
+        All fields in the order to access the desired field.
+        For ex, to access 'measurementA' in c.results.side_struct.measurementA,
+        structs would look like: ['c', 'results', 'side_struct', 'measurementA']
+
+    Returns
+    -------
+    np.array
+        The data contained in the desired field.
     """
+
     for struct in structs:
         if isinstance(data, np.ndarray) and data.dtype.names is not None:
             data = data[0, 0][struct]
@@ -124,7 +131,7 @@ def feature_extractor (directory, measurements, output_dir, *joint_names):
 
 
 # TODO: decide whether two following func are needed
-def feature_extractor(directory, measurements, output_dir, separate_legs, *joint_names):
+def feature_extractor(directory, measurements, output_dir, separated_legs, *joint_names):
 
     combined_data = []
     data_names = organized(directory)
@@ -136,7 +143,7 @@ def feature_extractor(directory, measurements, output_dir, separate_legs, *joint
         side_structs = ["Right", "Left"]
 
         # -------- Calculate while the info should be extracted separately --------
-        if separate_legs == True:
+        if separated_legs == True:
             for side_struct in side_structs:
                 joint_data = []
                 for measurement in measurements:
@@ -360,26 +367,32 @@ def mean_feature_extractor(
 
 # %% Calculates the minimum and maximum values of joints degrees of freedom.
 # TODO: find a way to handle both 'if' states
-def collecte_angles(all_data, joint_names, side_struct, min_max: str, separate_legs: bool):
+
+
+## Helper functions for MinMax_feature_extractor
+def collecting_angles(
+    all_data: np.ndarray, joint_names: List[str], side: str, min_max: str, separated_legs: bool = True
+) -> Tuple[List[np.ndarray], List[str]]:
     """
-    Extract angle data and headers for all joints and, if separate_legs=True, for one side (Right/Left)
+    Extract angle data and headers for specified joints.
 
     Parameters
     ----------
-    all_data : array
-        kind of an array of dictionnary. It is the results when loading MatLab struct into Python.
-    joint_names : list
-        list of all joints considered
-    side_struct : string
-        name of the side considered, i.e., 'Right' or 'Left'
+    all_data : np.ndarray
+        Kind of an array of dictionnary. It is the results when loading MatLab struct into Python.
+    joint_names : List[str]
+        Names of joints to extract (e.g., ['Hip', 'Knee', 'Ankle']).
+    side_struct : str
+        Name of the considered side, i.e., 'R' for Right, 'L' for Left
     min_max : str
-        type of angles considered, i.e., 'Min' or 'Max'
-    separate_legs : bool
-        to indicate if calculation should be done for each leg (i.e., True), or for both legs (i.e., False)
+        Type of considered angles, i.e., 'Min' or 'Max'
+    separated_legs : bool, optional
+        If True, extract full array; if False, extract scalar values, by default True
 
     Returns
     -------
-    returns a df with all the joint data and their names (i.e., headers, e.g., 'Max_Hip_flx/ext')
+    Tuple[List[np.ndarray], List[str]]
+        Joint data arrays and corresponding column headers (e.g., 'Max_Hip_flx/ext')
     """
 
     side = side_struct[0]  # can be defined before calling the function if separate_legs=True
@@ -388,12 +401,17 @@ def collecte_angles(all_data, joint_names, side_struct, min_max: str, separate_l
 
     for joint in joint_names:
         joint_with_side = side + joint
+
         # Extract joint kinematic data
-        joint_kin = all_data[0, 0][joint_with_side][0]
+        if separated_legs:
+            joint_kin = all_data[0, 0][joint_with_side][0]
+        else:
+            joint_kin = all_data[0, 0][joint_with_side][0][0]
+
         joint_data.append(joint_kin)
 
         # Create corresponding headers
-        joint_with_side_name = [
+        joint_with_side_name = [min_max + "_" + joint_with_side[1:] + "_" + direction for direction in joint_directions]
             min_max + "_" + joint_with_side[1:] + "_" + direction for direction in ["flx/ext", "abd/add", "int/ext rot"]
         ]
         headers.extend(joint_with_side_name)
@@ -401,15 +419,31 @@ def collecte_angles(all_data, joint_names, side_struct, min_max: str, separate_l
     return joint_data, headers
 
 
-def collecting_base_sustent(all_data, side_struct):
+def collecting_base_sustent(all_data: np.ndarray, side_struct: str):
+    """
+    Extract base of support (BOS) measure.
+
+    Parameters
+    ----------
+    all_data : np.ndarray
+        MatLab structure loaded in Python.
+    side_struct : str
+        Side of the body (e.g., 'Right' or 'Left')
+
+    Returns
+    -------
+    Tuple[np.ndarray, List[str]]
+        BOS data and corresponding header
+    """
 
     joint_kin = all_data[0, 0]["maxPreMoyenne"][0]
     joint_with_side_name = ["Max_" + side_struct + "_" + "BOS"]
+    joint_with_side_name = ["Max_" + side_struct + "_BOS"]
 
     return joint_kin, joint_with_side_name
 
 
-def collect_spatiotemporal_variable(all_data, measurement):
+def collecting_spatiotemporal_variable(all_data: np.ndarray, measurement: str):
     """
     Extract spatiotemporal variable (e.g., cadence)
 
