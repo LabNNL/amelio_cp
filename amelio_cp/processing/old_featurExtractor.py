@@ -373,6 +373,7 @@ def mean_feature_extractor(
 
 # %% Calculates the minimum and maximum values of joints degrees of freedom.
 
+
 ## Helper functions for MinMax_feature_extractor
 def collecting_angles(
     all_data: np.ndarray, joint_names: List[str], side: str, min_max: str, separated_legs: bool = True

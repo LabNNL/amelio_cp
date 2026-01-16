@@ -9,9 +9,7 @@ from sklearn.metrics import classification_report
 # %% Collecting/Loading the data from a csv file already created
 
 # TODO: relative path to fix
-file_path = (
-    "/Users/mathildetardif/Documents/Python/Biomarkers/prediction_amelioration/datasets/sample_2/all_data_28pp.csv"
-)
+file_path = "/Users/mathildetardif/Library/CloudStorage/OneDrive-UniversitedeMontreal/Mathilde Tardif - PhD - Biomarkers CP/PhD projects/Training responders/MyData/sample_2/all_data_28pp.csv"
 
 all_data = Process.load_csv(file_path)
 
