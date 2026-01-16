@@ -411,12 +411,12 @@ def collecting_angles(
 
         # Extract joint kinematic data
         if separated_legs:
-            
+
             joint_with_side_name = [
                 min_max + "_" + joint_with_side[1:] + "_" + direction for direction in joint_directions
             ]
         else:
-            # joint_kin = all_data[0, 0][joint_with_side][0][0]
+
             joint_with_side_name = [min_max + "_" + joint_with_side + "_" + direction for direction in joint_directions]
 
         joint_data.extend(joint_kin)
@@ -451,7 +451,9 @@ def collecting_base_sustent(all_data: np.ndarray, side_struct: str):
     return joint_kin, joint_with_side_name
 
 
-def collecting_spatiotemporal_variable(all_data: np.ndarray, measurement: str, side_struct: str = None, separated_legs: bool = True) -> Tuple[np.ndarray, str]:
+def collecting_spatiotemporal_variable(
+    all_data: np.ndarray, measurement: str, side_struct: str = None, separated_legs: bool = True
+) -> Tuple[np.ndarray, str]:
     """
     Extract spatiotemporal variable (e.g., cadence)
 
@@ -468,7 +470,7 @@ def collecting_spatiotemporal_variable(all_data: np.ndarray, measurement: str, s
         Extracted variable data and its
     """
     variable_data = np.atleast_1d(np.asanyarray([all_data[0][0]]))
-    
+
     if separated_legs:
         return variable_data, measurement
     else:
@@ -517,7 +519,9 @@ def process_measurement(
         joint_data, headers = collecting_base_sustent(all_data, side)
 
     else:
-        joint_data, header = collecting_spatiotemporal_variable(all_data, measurement, side, separated_legs=separated_legs)
+        joint_data, header = collecting_spatiotemporal_variable(
+            all_data, measurement, side, separated_legs=separated_legs
+        )
         headers = [header]
 
     return joint_data, headers
