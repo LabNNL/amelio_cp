@@ -223,6 +223,7 @@ class Process:
             String to specify the model to use (i.e., 'svc', 'svr').
         features_path : str, optional
             Path to the Excel file containing the features to select and their names (i.e., Max_Knee_flx/ext = Maximum Knee Flexion/Extension), by default None
+            Like this, all features can be choosen by the user when running the model.
 
         Returns
         -------
@@ -243,11 +244,10 @@ class Process:
 
         data, y = Process.prepare_dataframe(all_data, condition_to_predict, model_name)
 
-        # TODO: make a fucntion that takes an array of features to select
         if features_path:
             features = pd.read_excel(features_path)
-            selected_features = features["19"].dropna().to_list()
-            features_names = features["19_names"].dropna().to_list()
+            selected_features = features["features"].dropna().to_list()
+            features_names = features["names"].dropna().to_list()
         else:
             selected_features = data.columns.to_list()
             features_names = data.columns.to_list()
@@ -270,6 +270,8 @@ class Process:
         df.to_csv(filepath)
         return filepath
 
+    # Not used as the data are directly loaded from an xlsx files
+    @staticmethod
     def _calculate_gsi(data: DataFrame, weight: DataFrame):
         """This function caluclates the Global Strength Index as such:
                     GSI = (1/n)*sum(muscle_torques/weight)
@@ -342,4 +344,4 @@ class Process:
             return gsi
 
         else:
-            raise TypeError("'separate_legs' was not correctly set, it should be eithe True or False.")
+            raise TypeError("'separate_legs' was not correctly set, it should be either True or False.")

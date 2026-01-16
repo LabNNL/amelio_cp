@@ -372,8 +372,6 @@ def mean_feature_extractor(
 
 
 # %% Calculates the minimum and maximum values of joints degrees of freedom.
-# TODO: find a way to handle both 'if' states
-
 
 ## Helper functions for MinMax_feature_extractor
 def collecting_angles(
