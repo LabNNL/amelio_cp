@@ -407,14 +407,16 @@ def collecting_angles(
     for joint in joint_names:
         joint_with_side = side + joint
 
+        joint_kin = all_data[0, 0][joint_with_side][0]
+
         # Extract joint kinematic data
         if separated_legs:
-            joint_kin = all_data[0, 0][joint_with_side][0]
+            
             joint_with_side_name = [
                 min_max + "_" + joint_with_side[1:] + "_" + direction for direction in joint_directions
             ]
         else:
-            joint_kin = all_data[0, 0][joint_with_side][0][0]
+            # joint_kin = all_data[0, 0][joint_with_side][0][0]
             joint_with_side_name = [min_max + "_" + joint_with_side + "_" + direction for direction in joint_directions]
 
         joint_data.extend(joint_kin)
@@ -449,7 +451,7 @@ def collecting_base_sustent(all_data: np.ndarray, side_struct: str):
     return joint_kin, joint_with_side_name
 
 
-def collecting_spatiotemporal_variable(all_data: np.ndarray, measurement: str):
+def collecting_spatiotemporal_variable(all_data: np.ndarray, measurement: str, side_struct: str = None, separated_legs: bool = True) -> Tuple[np.ndarray, str]:
     """
     Extract spatiotemporal variable (e.g., cadence)
 
@@ -466,7 +468,12 @@ def collecting_spatiotemporal_variable(all_data: np.ndarray, measurement: str):
         Extracted variable data and its
     """
     variable_data = np.atleast_1d(np.asanyarray([all_data[0][0]]))
-    return variable_data, measurement
+    
+    if separated_legs:
+        return variable_data, measurement
+    else:
+        measurement_with_side = side_struct + measurement
+        return variable_data, measurement_with_side
 
 
 ## Main functions for MinMax feature extraction
@@ -495,15 +502,13 @@ def process_measurement(
     Tuple[List[np.ndarray], List[str]]
         Extracted variable data and its corresponding headers
     """
-
+    side = side_name[0]  # 'R' for 'Right', 'L' for 'Left'
     if measurement == "angMinAtFullStance":
-        side = side_name[0]  # 'R' for 'Right', 'L' for 'Left'
         joint_data, headers = collecting_angles(
             all_data, joint_names, side, min_max="Min", separated_legs=separated_legs
         )
 
     elif measurement == "angMaxAtFullStance":
-        side = side_name[0]  # 'R' for 'Right', 'L' for 'Left'
         joint_data, headers = collecting_angles(
             all_data, joint_names, side, min_max="Max", separated_legs=separated_legs
         )
@@ -512,7 +517,7 @@ def process_measurement(
         joint_data, headers = collecting_base_sustent(all_data, side)
 
     else:
-        joint_data, header = collecting_spatiotemporal_variable(all_data, measurement)
+        joint_data, header = collecting_spatiotemporal_variable(all_data, measurement, side, separated_legs=separated_legs)
         headers = [header]
 
     return joint_data, headers
@@ -724,7 +729,10 @@ def min_max_feature_extractor(
 
     # Save combined file
     df_all = pd.DataFrame(combined_data, columns=headers)
-    # df_all.to_csv(os.path.join(output_dir, "all_files.csv"), index=False)
+    if separated_legs:
+        df_all.to_csv(os.path.join(output_dir, "all_files_separated_legs.csv"), index=False)
+    else:
+        df_all.to_csv(os.path.join(output_dir, "all_files_combined_legs.csv"), index=False)
 
     # Return in requested format
     return df_all if output_shape == pd.DataFrame else combined_data
@@ -735,10 +743,10 @@ def min_max_feature_extractor(
 if __name__ == "__main__":
     # Example usage
     result = min_max_feature_extractor(
-        directory="/Users/mathildetardif/Documents/Python/Biomarkers/prediction_amelioration/datasets/sample_1/raw_data",
+        directory="/Users/mathildetardif/Library/CloudStorage/OneDrive-UniversitedeMontreal/Mathilde Tardif - PhD - Biomarkers CP/PhD projects/Training responders/MyData/sample_1/raw_data",
         measurements=["angAtFullCycle", "pctToeOff", "pctToeOffOppose"],
-        output_dir="/Users/mathildetardif/Documents/Python/Biomarkers/prediction_amelioration/datasets/sample_1/processed_data",
-        separated_legs=True,
+        output_dir="/Users/mathildetardif/Library/CloudStorage/OneDrive-UniversitedeMontreal/Mathilde Tardif - PhD - Biomarkers CP/PhD projects/Training responders/MyData/sample_1/processed_data",
+        separated_legs=False,
         joint_names=["Hip", "Knee", "Ankle"],
     )
 
