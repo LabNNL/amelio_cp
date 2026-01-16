@@ -120,16 +120,23 @@ class Process:
         return all_data
 
     @staticmethod
+    def MCID_VIT_GPS(pre_data, post_data, threshold) -> list:
+        delta = post_data - pre_data
+        MCID = []
+        for i in delta:
+            if i >= threshold:
+                MCID.append(1)
+            else:
+                MCID.append(0)
+        return pd.Series(MCID, index=pre_data.index)
+
+    @staticmethod
     def calculate_MCID(pre_data, post_data, variable, gmfcs_data=None) -> list:
         if variable == "VIT":
-            delta_VIT = post_data - pre_data
-            MCID_VIT = []
-            for i in delta_VIT:
-                if i >= 0.1:
-                    MCID_VIT.append(1)
-                else:
-                    MCID_VIT.append(0)
-            return pd.Series(MCID_VIT, index=pre_data.index)
+            Process.MCID_VIT_GPS(pre_data, post_data, 0.1)
+
+        elif variable == "GPS":
+            Process.MCID_VIT_GPS(pre_data, post_data, 1.6)
 
         elif variable == "6MWT":
             GMFCS_MCID = {1: range(4, 29), 2: range(4, 29), 3: range(9, 20), 4: range(10, 28)}
@@ -143,7 +150,7 @@ class Process:
             return pd.Series(MCID_6MWT, index=gmfcs_data.index)
 
         else:
-            raise ValueError("Variable not recognized. Use 'VIT', or '6MWT'.")
+            raise ValueError("Variable not recognized. Use 'VIT', or '6MWT', or 'GPS'.")
 
     @staticmethod
     def prepare_dataframe(all_data: DataFrame, condition_to_predict: str, model_name: str):
