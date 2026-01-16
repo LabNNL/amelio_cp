@@ -26,14 +26,14 @@ class Process:
         return df
 
     @staticmethod
-    def load_gps(file_path: str) -> DataFrame:
+    def load_gps_data(file_path: str) -> DataFrame:
         df = pd.read_csv(file_path, index_col=False)
         df.drop(columns=["Unnamed: 0", "Post"], inplace=True)
         df.rename(columns={"Pre": "GPS"}, inplace=True)
         return df
 
     @staticmethod
-    def load_demo(file_path: str):
+    def load_demographic_data(file_path: str):
 
         df = pd.read_excel(file_path)
         df["BMI"] = df["masse"] / ((df["taille"] / 100) ** 2)
@@ -56,26 +56,31 @@ class Process:
 
         Parameters
         ----------
-        data_path : str
-            DESCRIPTION.
-        separate_legs : bool, optional
-            DESCRIPTION. The default is True.
+        data_dir : str
+            Dir to the folder with all .mat files.
+        output_dir : str
+            Dir to the output folder.
+        demographic_path : str
+            Path to demographic data Excel file.
         gps_path : str
-            gait analysis score.
+            Path to gait analysis scores Excel file.
+        separate_legs : bool, optional
+            Condition used about the extraction,
+            by default is True.
 
         Returns
         -------
-        all_data : TYPE
-            DESCRIPTION.
-
+        all_data : pd.DataFrame
+            DataFrame with all the features and labels.
         """
+
         # file info
         measurements = ["pctSimpleAppuie", "distFoulee", "vitCadencePasParMinute"]
         joint_names = ["Hip", "Knee", "Ankle"]
         side = ["Right", "Left"]
 
         # Extracting variables from .mat files
-        kin_var = mat_to_df.MinMax_feature_extractor(
+        kinematic_variables = mat_to_df.MinMax_feature_extractor(
             directory=data_dir,
             output_dir=output_dir,
             measurements=measurements,
@@ -84,20 +89,20 @@ class Process:
         )
 
         # Calculating ROM from the function above
-        kin_var = self.calculate_ROM(kin_var)
+        kinematic_variables = self.calculate_ROM(kinematic_variables)
 
         # ----- fixing the values of cadence -----
-        kin_var["vitCadencePasParMinute"] *= 2
+        kinematic_variables["vitCadencePasParMinute"] *= 2
 
         # ----- Add GPS to the features -----
         #       Gait Profile Score
-        gps = self.load_gps(gps_path)
-        all_data = pd.concat((kin_var, gps), axis=1)
+        gps = self.load_gps_data(gps_path)
+        all_data = pd.concat((kinematic_variables, gps), axis=1)
 
         # ----- Add participants demographic variables -----
-        demo_var = self.load_demo(demographic_path)
+        demographic_variables = self.load_demographic_data(demographic_path)
 
-        all_data = pd.concat((all_data, demo_var), axis=1)
+        all_data = pd.concat((all_data, demographic_variables), axis=1)
         # TODO: concat in one funct
 
         return all_data
@@ -193,7 +198,8 @@ class Process:
     @staticmethod
     # TODO: splitting in several functions for each condition
     def prepare_data(data_path, condition_to_predict, model_name, features_path=None):
-        """function that prepare the data to be suitable for the model (i.e., features, label)
+        """
+        This function prepares the data to be suitable for the model (i.e., features, & label)
 
         Parameters
         ----------
