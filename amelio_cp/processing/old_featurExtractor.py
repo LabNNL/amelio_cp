@@ -389,7 +389,7 @@ def collecting_angles(
     joint_names : List[str]
         Names of joints to extract (e.g., ['Hip', 'Knee', 'Ankle']).
     side_struct : str
-        Name of the considered side, i.e., 'R' for Right, 'L' for Left
+        Letter of the considered side, i.e., 'R' for Right, 'L' for Left
     min_max : str
         Type of considered angles, i.e., 'Min' or 'Max'
     separated_legs : bool, optional
@@ -436,7 +436,7 @@ def collecting_base_sustent(all_data: np.ndarray, side_struct: str):
     all_data : np.ndarray
         MatLab structure loaded in Python.
     side_struct : str
-        Side of the body (e.g., 'Right' or 'Left')
+        Letter of the considered side, i.e., 'R' for Right, 'L' for Left
 
     Returns
     -------
@@ -452,7 +452,7 @@ def collecting_base_sustent(all_data: np.ndarray, side_struct: str):
 
 
 def collecting_spatiotemporal_variable(
-    all_data: np.ndarray, measurement: str, side_struct: str = None, separated_legs: bool = True
+    all_data: np.ndarray, measurement: str, side_struct: str, separated_legs: bool = True
 ) -> Tuple[np.ndarray, str]:
     """
     Extract spatiotemporal variable (e.g., cadence)
@@ -463,6 +463,12 @@ def collecting_spatiotemporal_variable(
         MatLab structure loaded in Python
     measurement : str
         Name of the measurement to extract (e.g., 'cadence')
+    side_struct : str
+        Letter of the considered side, i.e., 'R' for Right, 'L' for Left
+    separated_legs : bool, optional
+        If True, name it without side;
+        if False, name it with side (to differentiate both legs),
+        by default True.
 
     Returns
     -------
@@ -497,7 +503,9 @@ def process_measurement(
     side_name : str
         Side to consider ('Right' or 'Left')
     separated_legs : bool, optional
-        If True, extract full arrays; if False, extract scalar values, by default True.
+        If True, extract full arrays for one leg;
+        if False, extract scalar values for both legs,
+        by default True.
 
     Returns
     -------
