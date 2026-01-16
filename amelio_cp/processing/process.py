@@ -23,23 +23,6 @@ class Process:
         df["ROM_Knee_Sag"] = df["Max_Knee_flx/ext"] - df["Min_Knee_flx/ext"]
         df["ROM_Ankle_Sag"] = df["Max_Ankle_flx/ext"] - df["Min_Ankle_flx/ext"]
 
-        # TODO: putting the following lines in the function that will do the
-        # feature engineering
-        df.drop(
-            [
-                "Min_Knee_abd/add",
-                "Min_Knee_int/ext rot",
-                "Min_Ankle_abd/add",
-                "Min_Ankle_int/ext rot",
-                "Max_Knee_abd/add",
-                "Max_Knee_int/ext rot",
-                "Max_Ankle_abd/add",
-                "Max_Ankle_int/ext rot",
-            ],
-            axis=1,
-            inplace=True,
-        )
-
         return df
 
     @staticmethod
@@ -208,7 +191,6 @@ class Process:
         return X, y
 
     @staticmethod
-    # TODO: what the best? -> giving paths or dataframes?
     # TODO: splitting in several functions for each condition
     def prepare_data(data_path, condition_to_predict, model_name, features_path=None):
         """function that prepare the data to be suitable for the model (i.e., features, label)
