@@ -8,13 +8,21 @@ from amelio_cp import LollipopPlot
 import numpy as np
 
 
-def main(file_path, condition_to_predict, feature_names_path, output_path=None, show=True):
+def main(file_path, condition_to_predict, feature_names_path=None, output_path=None, show=True):
     model = SVCModel()
-    X, y, features_names = Process.prepare_data(file_path, condition_to_predict, model.name, feature_names_path)
-    if condition_to_predict == "VIT":
-        X = X.drop([50, 51], axis=0)
-        y = y.drop([50, 51], axis=0)
 
+    if feature_names_path:
+        features_list, features_names = Process.prepare_features_list(feature_names_path)
+    else:
+        features_list, features_names = None, None
+
+    X, y = Process.prepare_data2(file_path, model.name, condition_to_predict, features_list)
+    # if condition_to_predict == "VIT":
+    #     X = X.drop([50, 51], axis=0)
+    #     y = y.drop([50, 51], axis=0)
+    print(f"Number of samples: {X.shape[0]}")
+    print(f"Number of patients: {int(X.shape[0]/2)}")
+    print("* * * * *")
     model.add_data(X, y, test_size=0.2)
 
     # Manually setting train and test data to have the same samples for comparison
@@ -69,12 +77,12 @@ def main(file_path, condition_to_predict, feature_names_path, output_path=None, 
 
 
 if __name__ == "__main__":
-    file_path = "datasets/sample_2/all_data_28pp.csv"
+    file_path = "datasets/all_data_28pp_gps.csv"
     feature_names_path = "amelio_cp/processing/Features.xlsx"
     output_path = "examples/results/svc_with_dist/same_samples/"
-    conditions = ["VIT", "6MWT"]
+    conditions = ["VIT", "6MWT", "GPS"]
     show = True
 
     for cond in conditions:
         print(f"\n\n===== Processing condition: {cond} =====\n")
-        main(file_path, cond, feature_names_path, show)
+        main(file_path, cond, feature_names_path, output_path, show)
