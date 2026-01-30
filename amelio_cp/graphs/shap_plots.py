@@ -29,9 +29,15 @@ class SHAPPlots:
 
         shap_values = model_class.shap_analysis["shap_values"]
 
+         # if shap_values is list (from predict_proba), select the class
+        if isinstance(shap_values, np.ndarray) and shap_values.ndim == 3:
+            shap_values_to_plot = shap_values[:, :, 1] # class 1
+        else:
+            shap_values_to_plot = shap_values  # regression / decision_function
+
         plt.figure()
         shap.summary_plot(
-            shap_values,
+            shap_values_to_plot,
             model_class.X_test_scaled,
             feature_names=features_names,  # model.feature_keys
             max_display=len(features_names),
