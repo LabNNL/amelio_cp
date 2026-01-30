@@ -5,6 +5,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 import joblib
+from imblearn.over_sampling import SMOTE
 
 
 # %% Base Model for classification
@@ -103,6 +104,14 @@ class ClassifierModel:
             X, y, test_size=test_size, stratify=y, random_state=self.random_state_split
         )
         print("✅ Split has been done.", flush=True)
+
+        # check if training data set is imbalance, if so, use SMOTE to balance it
+        # IR = Imbalance Ratio
+        IR = max(y_train.value_counts()[0],  y_train.value_counts()[1]) / min(y_train.value_counts()[0],  y_train.value_counts()[1])
+        if  IR > 2 :
+            smote = SMOTE(random_state=self.random_state)
+            x_train, y_train = smote.fit_resample(x_train, y_train)
+
         self.add_train_data(x_train, y_train)
         self.add_test_data(x_test, y_test)
 
