@@ -121,10 +121,10 @@ class Process:
     @staticmethod
     def calculate_MCID(pre_data, post_data, variable, gmfcs_data=None) -> list:
         if variable == "VIT":
-            Process.MCID_VIT_GPS(pre_data, post_data, 0.1)
+            return Process.MCID_VIT_GPS(pre_data, post_data, 0.1)
 
         elif variable == "GPS":
-            Process.MCID_VIT_GPS(pre_data, post_data, 1.6)
+            return Process.MCID_VIT_GPS(pre_data, post_data, 1.6)
 
         elif variable == "6MWT":
             GMFCS_MCID = {1: range(4, 29), 2: range(4, 29), 3: range(9, 20), 4: range(10, 28)}
@@ -140,6 +140,12 @@ class Process:
         else:
             raise ValueError("Variable not recognized. Use 'VIT', or '6MWT', or 'GPS'.")
 
+    def prepare_features_list(features_path: str) -> list:
+        features = pd.read_excel(features_path, index_col=None)
+        selected_features = features["features"].dropna().to_list()
+        features_names = features["names"].dropna().to_list()
+        return selected_features, features_names
+    
     @staticmethod
     def prepare_dataframe(all_data: DataFrame, condition_to_predict: str, model_name: str):
         """This function prepare the data, to have the features on one side (X)
@@ -165,7 +171,7 @@ class Process:
             _description_
         """
 
-        conditions = ["VIT", "6MWT"]  # , "GPS"]
+        conditions = ["VIT", "6MWT", "GPS"]
 
         if condition_to_predict not in conditions:
             raise ValueError("Condition to predict not recognized. Choose either 'VIT', '6MWT', or 'GPS'.")
@@ -189,9 +195,52 @@ class Process:
                 gmfcs_data,
             )
             X = all_data.drop(columns=[condition_to_predict + "_POST"])
-        else:
+        elif model_name == "svr":
             y = all_data[condition_to_predict + "_POST"]
             X = all_data.drop(columns=[condition_to_predict + "_POST"])
+        else:
+            raise ValueError("Model name not recognized. Choose either 'svc' or 'svr'.")
+        
+        y = y.rename(condition_to_predict + "_MCID")
+
+        return pd.concat([X, y], axis=1)
+
+    def prepare_data2(data_path: str, model_name: str, condition_to_predict: str, features: list = None,):
+        """
+        This function prepares the data to be suitable for the model (i.e., features, & label)
+
+        Parameters
+        ----------
+        data_path : str
+            Path to the CSV file containing all the data (i.e., features, with PRE and POST variables).
+        features : list
+            List of features to select.
+        condition_to_predict : str 
+            Sets the condition to predict (i.e., 'VIT' or '6MWT' or 'GPS'), i.e., the label.
+        model_name : str
+            String to specify the model to use (i.e., 'svc', 'svr').
+
+        Returns
+        -------
+        X : DataFrame
+            Features matrix.
+        y : Series
+            Labels vector.
+        """
+
+        all_data = Process.load_csv(data_path)
+
+        data = Process.prepare_dataframe(all_data, condition_to_predict, model_name)
+        
+        label = condition_to_predict + "_MCID"
+        # if model_name == "svc", MCID col is 0 or 1
+        # if model_name == "svr", col is continuous value of post/pre difference
+        y = data[label]
+
+        if features:
+            X = data[features]
+        else: 
+            X = data.loc[:, ~data.columns.str.endswith("_MCID")]
 
         return X, y
 
