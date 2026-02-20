@@ -107,8 +107,10 @@ class ClassifierModel:
 
         # check if training data set is imbalance, if so, use SMOTE to balance it
         # IR = Imbalance Ratio
-        IR = max(y_train.value_counts()[0],  y_train.value_counts()[1]) / min(y_train.value_counts()[0],  y_train.value_counts()[1])
-        if  IR > 2 :
+        IR = max(y_train.value_counts()[0], y_train.value_counts()[1]) / min(
+            y_train.value_counts()[0], y_train.value_counts()[1]
+        )
+        if IR > 2:
             smote = SMOTE(random_state=self.random_state)
             x_train, y_train = smote.fit_resample(x_train, y_train)
 
@@ -161,6 +163,8 @@ class ClassifierModel:
         acc = accuracy_score(self.y_train, preds)  # IDEM
         print(f"Best Params: {self.best_params}")
         print(f"Accuracy on training data: {acc:.4f}")
+
+        # TODO: adding ROC-AUC value
 
         # Evaluate with K-Fold CV for stability
         # K-Fold CV setup

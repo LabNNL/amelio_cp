@@ -145,7 +145,7 @@ class Process:
         selected_features = features["features"].dropna().to_list()
         features_names = features["names"].dropna().to_list()
         return selected_features, features_names
-    
+
     @staticmethod
     def prepare_dataframe(all_data: DataFrame, condition_to_predict: str, model_name: str):
         """This function prepare the data, to have the features on one side (X)
@@ -200,12 +200,17 @@ class Process:
             X = all_data.drop(columns=[condition_to_predict + "_POST"])
         else:
             raise ValueError("Model name not recognized. Choose either 'svc' or 'svr'.")
-        
+
         y = y.rename(condition_to_predict + "_MCID")
 
         return pd.concat([X, y], axis=1)
 
-    def prepare_data2(data_path: str, model_name: str, condition_to_predict: str, features: list = None,):
+    def prepare_data2(
+        data_path: str,
+        model_name: str,
+        condition_to_predict: str,
+        features: list = None,
+    ):
         """
         This function prepares the data to be suitable for the model (i.e., features, & label)
 
@@ -215,7 +220,7 @@ class Process:
             Path to the CSV file containing all the data (i.e., features, with PRE and POST variables).
         features : list
             List of features to select.
-        condition_to_predict : str 
+        condition_to_predict : str
             Sets the condition to predict (i.e., 'VIT' or '6MWT' or 'GPS'), i.e., the label.
         model_name : str
             String to specify the model to use (i.e., 'svc', 'svr').
@@ -231,7 +236,7 @@ class Process:
         all_data = Process.load_csv(data_path)
 
         data = Process.prepare_dataframe(all_data, condition_to_predict, model_name)
-        
+
         label = condition_to_predict + "_MCID"
         # if model_name == "svc", MCID col is 0 or 1
         # if model_name == "svr", col is continuous value of post/pre difference
@@ -239,7 +244,7 @@ class Process:
 
         if features:
             X = data[features]
-        else: 
+        else:
             X = data.loc[:, ~data.columns.str.endswith("_MCID")]
 
         return X, y

@@ -29,9 +29,9 @@ class SHAPPlots:
 
         shap_values = model_class.shap_analysis["shap_values"]
 
-         # if shap_values is list (from predict_proba), select the class
+        # if shap_values is list (from predict_proba), select the class
         if isinstance(shap_values, np.ndarray) and shap_values.ndim == 3:
-            shap_values_to_plot = shap_values[:, :, 1] # class 1
+            shap_values_to_plot = shap_values[:, :, 1]  # class 1
         else:
             shap_values_to_plot = shap_values  # regression / decision_function
 
