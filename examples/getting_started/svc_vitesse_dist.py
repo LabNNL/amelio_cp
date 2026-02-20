@@ -40,7 +40,7 @@ def main(file_path, condition_to_predict, feature_names_path=None, output_path=N
 
     model.dist_from_bound = model.model.decision_function(model.X_test_scaled)
     y_pred_vit_classif = model.model.predict(model.X_test_scaled)
-    print("\nTrue labels: ", model.y_test)
+    print("\nTrue labels: ", model.y_test.to_list())
     print("\nPredictions: ", y_pred_vit_classif)
     print("Accuracy test score: ", model.model.score(model.X_test_scaled, model.y_test))
     print(classification_report(model.y_test, y_pred_vit_classif), flush=True)
@@ -78,7 +78,7 @@ def main(file_path, condition_to_predict, feature_names_path=None, output_path=N
 
 if __name__ == "__main__":
     file_path = "datasets/all_data_28pp_gps.csv"
-    feature_names_path = "amelio_cp/processing/Features.xlsx"
+    feature_names_path = "amelio_cp/processing/Features15_gps.xlsx"
     output_path = "examples/results/svc_with_dist/same_samples/"
     conditions = ["VIT", "6MWT", "GPS"]
     show = True

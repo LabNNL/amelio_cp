@@ -6,7 +6,7 @@ from sklearn.metrics import classification_report
 from amelio_cp import SHAPPlots
 
 # %% Collecting/Loading the data from a csv file already created
-file_path = "datasets/sample_2/all_data_28pp.csv"
+file_path = "datasets/all_data_28pp.csv"
 
 all_data = Process.load_csv(file_path)
 
