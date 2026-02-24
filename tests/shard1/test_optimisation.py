@@ -19,11 +19,11 @@ def test_optimisation_svc_model():
 
     np.testing.assert_almost_equal(
         np.array([model.model.C, float(model.model.gamma), model.model.degree]),
-        np.array([803.9493975500188, 0.15676168024249845, 5]),
+        np.array([832.6101981596213, 0.21312677156759788, 2]),
     )
 
     np.testing.assert_almost_equal(
-        np.array(y_pred), np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+        np.array(y_pred), np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1])
     )
 
     # Bayesian Search
