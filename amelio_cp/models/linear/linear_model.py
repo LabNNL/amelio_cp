@@ -98,7 +98,7 @@ class LinearModel:
         x_train, x_test, y_train, y_test = train_test_split(
             X, y, test_size=test_size, random_state=self.random_state_split
         )
-        print("✅ Split has been done.", flush=True)
+        print("Split has been done.", flush=True)
         self.add_train_data(x_train, y_train)
         self.add_test_data(x_test, y_test)
 

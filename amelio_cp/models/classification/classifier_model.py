@@ -103,13 +103,14 @@ class ClassifierModel:
         x_train, x_test, y_train, y_test = train_test_split(
             X, y, test_size=test_size, stratify=y, random_state=self.random_state_split
         )
-        print("✅ Split has been done.", flush=True)
+        print("Split has been done.", flush=True)
 
         # check if training data set is imbalance, if so, use SMOTE to balance it
         # IR = Imbalance Ratio
         IR = max(y_train.value_counts()[0], y_train.value_counts()[1]) / min(
             y_train.value_counts()[0], y_train.value_counts()[1]
         )
+        # TODO: maybe add a condition for the user to decide whether they want to apply SMOTE ot not
         if IR > 2:
             smote = SMOTE(random_state=self.random_state)
             x_train, y_train = smote.fit_resample(x_train, y_train)

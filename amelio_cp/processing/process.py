@@ -177,9 +177,15 @@ class Process:
             raise ValueError("Condition to predict not recognized. Choose either 'VIT', '6MWT', or 'GPS'.")
 
         conditions.remove(condition_to_predict)
-        post_to_remove = [condition + "_POST" for condition in conditions]
 
-        all_data = all_data.drop(columns=post_to_remove)
+        # Find columns ending with '_POST' except the condition_to_predict_POST column
+        post_columns = [
+            col for col in all_data.columns if col.endswith("_POST") and col != condition_to_predict + "_POST"
+        ]
+        print(f"Post columns that will be removed: {post_columns}")
+        # post_to_remove = [condition + "_POST" for condition in conditions]
+
+        all_data = all_data.drop(columns=post_columns)
         all_data = all_data.dropna(axis=0)
 
         if condition_to_predict == "6MWT":
@@ -203,7 +209,7 @@ class Process:
 
         y = y.rename(condition_to_predict + "_MCID")
 
-        return pd.concat([X, y], axis=1)
+        return X, y
 
     def prepare_data2(
         data_path: str,
@@ -249,6 +255,24 @@ class Process:
 
         return X, y
 
+    def prepare_features(features_path: str) -> list:
+        """Function to select the features and their names from a excel files that has 2 columns: one with the raw names of the features and one with the correct names of them.
+
+        Parameters
+        ----------
+        features_path : str
+            path of the excel file with the features to select and their names (i.e., Max_Knee_flx/ext = Maximum Knee Flexion/Extension)
+
+        Returns
+        -------
+        list
+            List of selected features and their corresponding names.
+        """
+        features = pd.read_excel(features_path, index_col=None)
+        selected_features = features["features"].dropna().to_list()
+        features_names = features["names"].dropna().to_list()
+        return selected_features, features_names
+
     @staticmethod
     # TODO: splitting in several functions for each condition
     def prepare_data(data_path, condition_to_predict, model_name, features_path=None):
@@ -285,6 +309,10 @@ class Process:
         all_data = Process.load_csv(data_path)
 
         data, y = Process.prepare_dataframe(all_data, condition_to_predict, model_name)
+        label = condition_to_predict + "_MCID"
+        # if model_name == "svc", MCID col is 0 or 1
+        # if model_name == "svr", col is continuous value of post/pre difference
+        y = data[label]
 
         if features_path:
             features = pd.read_excel(features_path)
