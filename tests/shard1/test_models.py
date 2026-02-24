@@ -456,5 +456,29 @@ def test_svc_model():
     )
 
     np.testing.assert_almost_equal(
-        model.y_test.to_list(), np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+        model.y_test.to_list(), np.array(
+            [
+                1, 
+                1, 
+                1, 
+                1, 
+                1, 
+                1, 
+                1, 
+                1, 
+                1,
+                0, 
+                1, 
+                1, 
+                1, 
+                1, 
+                1, 
+                1, 
+                1, 
+                1, 
+                1, 
+                1,
+                1,
+            ]
+        ),
     )
