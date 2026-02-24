@@ -12,6 +12,9 @@ class Process:
         df = pd.read_csv(file_path, index_col=False)
         return df
 
+    # ─────────────────────────────────────────
+    #  DATAFRAME PREPARATION
+    # ─────────────────────────────────────────
     @staticmethod
     def calculate_ROM(df: DataFrame):
 
@@ -140,206 +143,6 @@ class Process:
         else:
             raise ValueError("Variable not recognized. Use 'VIT', or '6MWT', or 'GPS'.")
 
-    def prepare_features_list(features_path: str) -> list:
-        features = pd.read_excel(features_path, index_col=None)
-        selected_features = features["features"].dropna().to_list()
-        features_names = features["names"].dropna().to_list()
-        return selected_features, features_names
-
-    @staticmethod
-    def prepare_dataframe(all_data: DataFrame, condition_to_predict: str, model_name: str):
-        """This function prepare the data, to have the features on one side (X)
-        and the labels on the other side (y)
-
-        Parameters
-        ----------
-        all_data : DataFrame
-            The whole matrix with features and labels.
-        condition_to_predict : str
-            Which condition to predict (i.e., 'VIT' or '6MWT' or 'GPS').
-        model_name : str
-            Model to use (i.e., 'svc' or 'svr').
-
-        Returns
-        -------
-        tuple
-            Features matrix (X) and labels vector (y).
-
-        Raises
-        ------
-        ValueError
-            _description_
-        """
-
-        conditions = ["VIT", "6MWT", "GPS"]
-
-        if condition_to_predict not in conditions:
-            raise ValueError("Condition to predict not recognized. Choose either 'VIT', '6MWT', or 'GPS'.")
-
-        conditions.remove(condition_to_predict)
-
-        # Find columns ending with '_POST' except the condition_to_predict_POST column
-        post_columns = [
-            col for col in all_data.columns if col.endswith("_POST") and col != condition_to_predict + "_POST"
-        ]
-        print(f"Post columns that will be removed: {post_columns}")
-        # post_to_remove = [condition + "_POST" for condition in conditions]
-
-        all_data = all_data.drop(columns=post_columns)
-        all_data = all_data.dropna(axis=0)
-
-        if condition_to_predict == "6MWT":
-            gmfcs_data = all_data["GMFCS"]
-        else:
-            gmfcs_data = None
-
-        if model_name == "svc":
-            y = Process.calculate_MCID(
-                all_data[condition_to_predict + "_PRE"],
-                all_data[condition_to_predict + "_POST"],
-                condition_to_predict,
-                gmfcs_data,
-            )
-            X = all_data.drop(columns=[condition_to_predict + "_POST"])
-        elif model_name == "svr":
-            y = all_data[condition_to_predict + "_POST"]
-            X = all_data.drop(columns=[condition_to_predict + "_POST"])
-        else:
-            raise ValueError("Model name not recognized. Choose either 'svc' or 'svr'.")
-
-        y = y.rename(condition_to_predict + "_MCID")
-
-        return X, y
-
-    def prepare_data2(
-        data_path: str,
-        model_name: str,
-        condition_to_predict: str,
-        features: list = None,
-    ):
-        """
-        This function prepares the data to be suitable for the model (i.e., features, & label)
-
-        Parameters
-        ----------
-        data_path : str
-            Path to the CSV file containing all the data (i.e., features, with PRE and POST variables).
-        features : list
-            List of features to select.
-        condition_to_predict : str
-            Sets the condition to predict (i.e., 'VIT' or '6MWT' or 'GPS'), i.e., the label.
-        model_name : str
-            String to specify the model to use (i.e., 'svc', 'svr').
-
-        Returns
-        -------
-        X : DataFrame
-            Features matrix.
-        y : Series
-            Labels vector.
-        """
-
-        all_data = Process.load_csv(data_path)
-
-        data = Process.prepare_dataframe(all_data, condition_to_predict, model_name)
-
-        label = condition_to_predict + "_MCID"
-        # if model_name == "svc", MCID col is 0 or 1
-        # if model_name == "svr", col is continuous value of post/pre difference
-        y = data[label]
-
-        if features:
-            X = data[features]
-        else:
-            X = data.loc[:, ~data.columns.str.endswith("_MCID")]
-
-        return X, y
-
-    def prepare_features(features_path: str) -> list:
-        """Function to select the features and their names from a excel files that has 2 columns: one with the raw names of the features and one with the correct names of them.
-
-        Parameters
-        ----------
-        features_path : str
-            path of the excel file with the features to select and their names (i.e., Max_Knee_flx/ext = Maximum Knee Flexion/Extension)
-
-        Returns
-        -------
-        list
-            List of selected features and their corresponding names.
-        """
-        features = pd.read_excel(features_path, index_col=None)
-        selected_features = features["features"].dropna().to_list()
-        features_names = features["names"].dropna().to_list()
-        return selected_features, features_names
-
-    @staticmethod
-    # TODO: splitting in several functions for each condition
-    def prepare_data(data_path, condition_to_predict, model_name, features_path=None):
-        """
-        This function prepares the data to be suitable for the model (i.e., features, & label)
-
-        Parameters
-        ----------
-        data_path : DataFrame
-            Matrix with all the data (i.e., features and labels).
-        condition_to_predict : str
-            Sets the condition to predict (i.e., 'VIT' or '6MWT' or 'GPS').
-        model_name : str
-            String to specify the model to use (i.e., 'svc', 'svr').
-        features_path : str, optional
-            Path to the Excel file containing the features to select and their names (i.e., Max_Knee_flx/ext = Maximum Knee Flexion/Extension), by default None
-            Like this, all features can be choosen by the user when running the model.
-
-        Returns
-        -------
-        X : DataFrame
-            Features matrix.
-        y : Series
-            Labels vector.
-        features_names : list
-            List of the names of the selected features.
-
-        Raises
-        ------
-        ValueError
-            If the condition to predict is not recognized.
-        """
-
-        all_data = Process.load_csv(data_path)
-
-        data, y = Process.prepare_dataframe(all_data, condition_to_predict, model_name)
-        label = condition_to_predict + "_MCID"
-        # if model_name == "svc", MCID col is 0 or 1
-        # if model_name == "svr", col is continuous value of post/pre difference
-        y = data[label]
-
-        if features_path:
-            features = pd.read_excel(features_path)
-            selected_features = features["features"].dropna().to_list()
-            features_names = features["names"].dropna().to_list()
-        else:
-            selected_features = data.columns.to_list()
-            features_names = data.columns.to_list()
-
-        X = data[selected_features]
-
-        return X, y, features_names
-
-    @staticmethod
-    def save_df(df, output_path, separate_legs):
-        if separate_legs:
-            label = "leg_separated"
-        else:
-            label = "leg_not_separated"
-
-        os.makedirs(output_path, exist_ok=True)
-        nb_pp = len(df) // 2
-        filename = f"all_data_{nb_pp}pp_{label}.csv"
-        filepath = os.path.join(output_path, filename)
-        df.to_csv(filepath)
-        return filepath
-
     # Not used as the data are directly loaded from an xlsx files
     @staticmethod
     def _calculate_gsi(data: DataFrame, weight: DataFrame):
@@ -415,3 +218,184 @@ class Process:
 
         else:
             raise TypeError("'separate_legs' was not correctly set, it should be either True or False.")
+
+    @staticmethod
+    def prepare_dataframe(all_data: DataFrame, condition_to_predict: str, model_name: str):
+        """This function prepare the data, to have the features on one side (X)
+        and the labels on the other side (y)
+
+        Parameters
+        ----------
+        all_data : DataFrame
+            The whole matrix with features and labels.
+        condition_to_predict : str
+            Which condition to predict (i.e., 'VIT' or '6MWT' or 'GPS').
+        model_name : str
+            Model to use (i.e., 'svc' or 'svr').
+
+        Returns
+        -------
+        tuple
+            Features matrix (X) and labels vector (y).
+
+        Raises
+        ------
+        ValueError
+            _description_
+        """
+
+        conditions = ["VIT", "6MWT", "GPS"]
+
+        if condition_to_predict not in conditions:
+            raise ValueError("Condition to predict not recognized. Choose either 'VIT', '6MWT', or 'GPS'.")
+
+        conditions.remove(condition_to_predict)
+
+        # Find columns ending with '_POST' except the condition_to_predict_POST column
+        post_columns = [
+            col for col in all_data.columns if col.endswith("_POST") and col != condition_to_predict + "_POST"
+        ]
+        print(f"Post columns that will be removed: {post_columns}")
+        # post_to_remove = [condition + "_POST" for condition in conditions]
+
+        all_data = all_data.drop(columns=post_columns)
+        all_data = all_data.dropna(axis=0)
+
+        if condition_to_predict == "6MWT":
+            gmfcs_data = all_data["GMFCS"]
+        else:
+            gmfcs_data = None
+
+        if model_name == "svc":
+            y = Process.calculate_MCID(
+                all_data[condition_to_predict + "_PRE"],
+                all_data[condition_to_predict + "_POST"],
+                condition_to_predict,
+                gmfcs_data,
+            )
+            X = all_data.drop(columns=[condition_to_predict + "_POST"])
+        elif model_name == "svr":
+            y = all_data[condition_to_predict + "_POST"]
+            X = all_data.drop(columns=[condition_to_predict + "_POST"])
+        else:
+            raise ValueError("Model name not recognized. Choose either 'svc' or 'svr'.")
+
+        y = y.rename(condition_to_predict + "_MCID")
+
+        return X, y
+
+    # ─────────────────────────────────────────
+    # X AND Y PREPARATION
+    # ─────────────────────────────────────────
+    @staticmethod
+    def prepare_features_list(features_path: str) -> list:
+        features = pd.read_excel(features_path, index_col=None)
+        selected_features = features["features"].dropna().to_list()
+        features_names = features["names"].dropna().to_list()
+        return selected_features, features_names
+
+    @staticmethod
+    def prepare_data2(
+        data_path: str,
+        model_name: str,
+        condition_to_predict: str,
+        features: list = None,
+    ):
+        """
+        This function prepares the data to be suitable for the model (i.e., features, & label)
+
+        Parameters
+        ----------
+        data_path : str
+            Path to the CSV file containing all the data (i.e., features, with PRE and POST variables).
+        features : list
+            List of features to select.
+        condition_to_predict : str
+            Sets the condition to predict (i.e., 'VIT' or '6MWT' or 'GPS'), i.e., the label.
+        model_name : str
+            String to specify the model to use (i.e., 'svc', 'svr').
+
+        Returns
+        -------
+        X : DataFrame
+            Features matrix.
+        y : Series
+            Labels vector.
+        """
+
+        all_data = Process.load_csv(data_path)
+
+        data, y = Process.prepare_dataframe(all_data, condition_to_predict, model_name)
+
+        if features:
+            X = data[features]
+        else:
+            X = data.loc[:, ~data.columns.str.endswith("_MCID")]
+
+        return X, y
+
+    @staticmethod
+    # TODO: splitting in several functions for each condition
+    def prepare_data(data_path, condition_to_predict, model_name, features_path=None):
+        """
+        This function prepares the data to be suitable for the model (i.e., features, & label)
+
+        Parameters
+        ----------
+        data_path : DataFrame
+            Matrix with all the data (i.e., features and labels).
+        condition_to_predict : str
+            Sets the condition to predict (i.e., 'VIT' or '6MWT' or 'GPS').
+        model_name : str
+            String to specify the model to use (i.e., 'svc', 'svr').
+        features_path : str, optional
+            Path to the Excel file containing the features to select and their names (i.e., Max_Knee_flx/ext = Maximum Knee Flexion/Extension), by default None
+            Like this, all features can be choosen by the user when running the model.
+
+        Returns
+        -------
+        X : DataFrame
+            Features matrix.
+        y : Series
+            Labels vector.
+        features_names : list
+            List of the names of the selected features.
+
+        Raises
+        ------
+        ValueError
+            If the condition to predict is not recognized.
+        """
+
+        all_data = Process.load_csv(data_path)
+
+        data, y = Process.prepare_dataframe(all_data, condition_to_predict, model_name)
+
+        if features_path:
+            features = pd.read_excel(features_path)
+            selected_features = features["features"].dropna().to_list()
+            features_names = features["names"].dropna().to_list()
+        else:
+            selected_features = data.columns.to_list()
+            features_names = data.columns.to_list()
+
+        X = data[selected_features]
+
+        return X, y, features_names
+
+    # ─────────────────────────────────────────
+    # SAVING
+    # ─────────────────────────────────────────
+    @staticmethod
+    def save_df(df, output_path, separate_legs):
+        if separate_legs:
+            label = "leg_separated"
+        else:
+            label = "leg_not_separated"
+
+        os.makedirs(output_path, exist_ok=True)
+        nb_pp = len(df) // 2
+        filename = f"all_data_{nb_pp}pp_{label}.csv"
+        filepath = os.path.join(output_path, filename)
+        df.to_csv(filepath)
+        return filepath

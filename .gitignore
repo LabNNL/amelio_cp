@@ -8,3 +8,7 @@ examples/sandbox
 *.ipynb
 amelio_cp/processing/Features.xlsx
 *.txt
+
+amelio_cp/processing/Features15_gps.xlsx
+
+amelio_cp/processing/Features15.xlsx

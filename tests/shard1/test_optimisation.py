@@ -10,7 +10,7 @@ data = Process.load_csv(data_path)
 def test_optimisation_svc_model():
     model = SVCModel()
 
-    X, y, _ = Process.prepare_data(data_path, "VIT", model_name=model.name)
+    X, y = Process.prepare_data2(data_path, model_name=model.name, condition_to_predict="VIT", features=None)
     model.add_data(X, y, test_size=0.2)
 
     # Bayesian Optimization
@@ -19,11 +19,11 @@ def test_optimisation_svc_model():
 
     np.testing.assert_almost_equal(
         np.array([model.model.C, float(model.model.gamma), model.model.degree]),
-        np.array([832.6101981596213, 0.21312677156759788, 2]),
+        np.array([803.9493975500188, 0.15676168024249845, 5]),
     )
 
     np.testing.assert_almost_equal(
-        np.array(y_pred), np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1])
+        np.array(y_pred), np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
     )
 
     # Bayesian Search
@@ -35,19 +35,19 @@ def test_optimisation_svc_model():
     y_pred = model.model.predict(model.X_test_scaled)
 
     np.testing.assert_almost_equal(
-        np.array(y_pred), np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1])
+        np.array(y_pred), np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
     )
 
     # Random Search
     model.train_and_tune("random", n_iter=30)
     np.testing.assert_almost_equal(
         np.array([model.model.C, model.model.gamma, model.model.degree]),
-        np.array([525.7564316322379, 0.030122914019804194, 2]),
+        np.array([460.24889196586713, 0.06111150117432088, 2]),
     )
     y_pred = model.model.predict(model.X_test_scaled)
 
     np.testing.assert_almost_equal(
-        np.array(y_pred), np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1])
+        np.array(y_pred), np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
     )
 
 
