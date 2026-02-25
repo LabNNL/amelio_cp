@@ -8,7 +8,7 @@ from sklearn.metrics import classification_report
 
 # %% Collecting/Loading the data from a csv file already created
 perso_path = input("Enter the path of the data directory:")
-# TODO: relative path to fix
+
 file_path = perso_path + "/all_data_28pp.csv"
 
 all_data = Process.load_csv(file_path)
