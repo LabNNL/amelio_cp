@@ -14,9 +14,7 @@ file_path = perso_path + "/all_data_28pp.csv"
 all_data = Process.load_csv(file_path)
 
 # %% Feature selection
-features = pd.read_excel(
-    "amelio_cp/processing/Features.xlsx"
-)
+features = pd.read_excel("amelio_cp/processing/Features.xlsx")
 selected_features = features["19"].dropna().to_list()
 features_names = features["19_names"]
 

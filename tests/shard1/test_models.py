@@ -6,7 +6,6 @@ from amelio_cp import ClassifierModel
 from amelio_cp import SVCModel
 from amelio_cp import Process
 
-
 data_path = "tests/data/fake_data_for_test.csv"
 data = Process.load_csv(data_path)
 

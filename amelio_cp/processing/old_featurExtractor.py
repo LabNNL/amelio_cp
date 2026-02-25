@@ -756,9 +756,9 @@ if __name__ == "__main__":
     perso_path = input("Enter the path of the data directory:")
 
     result = min_max_feature_extractor(
-        directory=perso_path+"/raw_data",
+        directory=perso_path + "/raw_data",
         measurements=["angAtFullCycle", "pctToeOff", "pctToeOffOppose"],
-        output_dir=perso_path+"/processed_data",
+        output_dir=perso_path + "/processed_data",
         separated_legs=False,
         joint_names=["Hip", "Knee", "Ankle"],
     )
