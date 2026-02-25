@@ -83,11 +83,11 @@ class Process:
         side = ["Right", "Left"]
 
         # Extracting variables from .mat files
-        kinematic_variables = mat_to_df.MinMax_feature_extractor(
+        kinematic_variables = mat_to_df.min_max_feature_extractor(
             directory=data_dir,
             output_dir=output_dir,
             measurements=measurements,
-            separate_legs=separate_legs,
+            separated_legs=separate_legs,
             joint_names=joint_names,
         )
 

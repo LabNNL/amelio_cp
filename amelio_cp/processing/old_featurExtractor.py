@@ -753,10 +753,12 @@ def min_max_feature_extractor(
 
 if __name__ == "__main__":
     # Example usage
+    perso_path = input("Enter the path of the data directory:")
+
     result = min_max_feature_extractor(
-        directory="/Users/mathildetardif/Library/CloudStorage/OneDrive-UniversitedeMontreal/Mathilde Tardif - PhD - Biomarkers CP/PhD projects/Training responders/MyData/sample_1/raw_data",
+        directory=perso_path+"/raw_data",
         measurements=["angAtFullCycle", "pctToeOff", "pctToeOffOppose"],
-        output_dir="/Users/mathildetardif/Library/CloudStorage/OneDrive-UniversitedeMontreal/Mathilde Tardif - PhD - Biomarkers CP/PhD projects/Training responders/MyData/sample_1/processed_data",
+        output_dir=perso_path+"/processed_data",
         separated_legs=False,
         joint_names=["Hip", "Knee", "Ankle"],
     )
