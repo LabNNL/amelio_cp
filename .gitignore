@@ -6,9 +6,5 @@ examples/sandbox
 *.json
 *.DS_Store
 *.ipynb
-amelio_cp/processing/Features.xlsx
+*.xlsx
 *.txt
-
-amelio_cp/processing/Features15_gps.xlsx
-
-amelio_cp/processing/Features15.xlsx
