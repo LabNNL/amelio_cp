@@ -9,7 +9,7 @@ class SVCModel(ClassifierModel):
         super().__init__()
 
         self.name = "svc"
-        self.model = SVC()
+        self.model = SVC(random_state=self.random_state)
         self.param_distributions = {
             "svc__C": uniform(1, 500),
             "svc__degree": [2, 3, 4],

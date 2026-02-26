@@ -3,9 +3,8 @@ from skopt import BayesSearchCV
 from bayes_opt import BayesianOptimization
 from skopt.space import Real, Integer, Categorical
 from scipy.stats import uniform, randint
-import numpy as np
-import random
 from sklearn import svm
+import numpy as np
 
 
 # TODO: find a way to collect training accuracies
@@ -137,7 +136,7 @@ class OptimisationMethods:
             """
 
             params = {"C": C, "gamma": gamma, "degree": int(degree), "kernel": kernel_options[int(kernel)]}
-            model_to_optim = model.model.set_params(**params)
+            model_to_optim = svm.SVC(**params, random_state=model.random_state)
             cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=model.random_state_cv)
             scores = cross_val_score(
                 model_to_optim, model.X_train_scaled, model.y_train, cv=cv, scoring="accuracy", n_jobs=1
