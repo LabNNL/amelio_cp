@@ -112,7 +112,7 @@ class ClassifierModel:
         )
         # TODO: maybe add a condition for the user to decide whether they want to apply SMOTE or not
         if IR > 2:
-            smote = SMOTE(random_state=self.random_state)
+            smote = SMOTE(sampling_strategy="auto",random_state=self.random_state)
             x_train, y_train = smote.fit_resample(x_train, y_train)
 
         self.add_train_data(x_train, y_train)

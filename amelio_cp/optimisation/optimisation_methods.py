@@ -140,7 +140,7 @@ class OptimisationMethods:
             model_to_optim = model.model.set_params(**params)
             cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=model.random_state_cv)
             scores = cross_val_score(
-                model_to_optim, model.X_train_scaled, model.y_train, cv=cv, scoring="accuracy", n_jobs=-1
+                model_to_optim, model.X_train_scaled, model.y_train, cv=cv, scoring="accuracy", n_jobs=1
             )
             return scores.mean()
 
