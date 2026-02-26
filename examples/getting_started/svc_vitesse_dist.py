@@ -13,6 +13,7 @@ def main(file_path, condition_to_predict, feature_names_path=None, output_path=N
 
     if feature_names_path:
         features_list, features_names = Process.prepare_features_list(feature_names_path)
+        print(f"Features used: \n", features_names)
     else:
         features_list, features_names = None, None
 
