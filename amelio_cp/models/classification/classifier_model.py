@@ -110,7 +110,7 @@ class ClassifierModel:
         IR = max(y_train.value_counts()[0], y_train.value_counts()[1]) / min(
             y_train.value_counts()[0], y_train.value_counts()[1]
         )
-        # TODO: maybe add a condition for the user to decide whether they want to apply SMOTE ot not
+        # TODO: maybe add a condition for the user to decide whether they want to apply SMOTE or not
         if IR > 2:
             smote = SMOTE(random_state=self.random_state)
             x_train, y_train = smote.fit_resample(x_train, y_train)

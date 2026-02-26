@@ -76,7 +76,7 @@ class OptimisationMethods:
         else:
             raise NotImplementedError("Random search not implemented for this model.")
 
-        print("⚙️ Starting RandomizedSearchCV optimisation...")
+        print("* * * * * \nStarting RandomizedSearchCV optimisation...")
 
         cv_splitter = KFold(n_splits=k_folds, shuffle=True, random_state=model.random_state_cv)
 
@@ -94,7 +94,7 @@ class OptimisationMethods:
         return search
 
     def bayesian_search(model, n_iter, k_folds):
-        print("⚙️ Starting Bayesian Search Optimization...")
+        print("* * * * * \nStarting Bayesian Search Optimization...")
 
         if model.name == "svc" or model.name == "svr":
             pbounds = OptimisationMethods._get_pbounds_for_svm(
@@ -144,7 +144,7 @@ class OptimisationMethods:
             )
             return scores.mean()
 
-        print("⚙️ Starting Bayesian optimisation...")
+        print("* * * * * \nStarting Bayesian optimisation...")
 
         optimizer = BayesianOptimization(
             f=function_to_min, pbounds=pbounds, random_state=model.random_state_optim, verbose=3

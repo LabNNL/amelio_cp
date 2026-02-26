@@ -56,7 +56,7 @@ class SHAPPlots:
         cbar.set_ylabel("Feature value", fontsize=18)  # Adjust the size as needed
         cbar.tick_params(labelsize=18)  # Adjust the size of the ticks (i.e., High/Low)
         plt.title(
-            f"Weight of each feature on the ML's decision making \n(random state = {model_class.random_state})",
+            f"Weight of each feature on the ML's decision making for {condition_to_predict} \n(random state = {model_class.random_state})",
             fontsize=20,
         )
 
