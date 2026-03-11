@@ -23,12 +23,21 @@ class SHAPPlots:
         return {"explainer": explainer, "shap_values": shap_values}
 
     @staticmethod
-    def plot_shap_summary(model_class, features_names: list, output_path: str, show=True):
+    def plot_shap_summary(
+        model_class, features_names: list, condition_to_predict: str, output_path: str = None, show=True
+    ):
 
         shap_values = model_class.shap_analysis["shap_values"]
 
+        # if shap_values is list (from predict_proba), select the class
+        if isinstance(shap_values, np.ndarray) and shap_values.ndim == 3:
+            shap_values_to_plot = shap_values[:, :, 1]  # class 1
+        else:
+            shap_values_to_plot = shap_values  # regression / decision_function
+
+        plt.figure()
         shap.summary_plot(
-            shap_values,
+            shap_values_to_plot,
             model_class.X_test_scaled,
             feature_names=features_names,  # model.feature_keys
             max_display=len(features_names),
@@ -47,22 +56,26 @@ class SHAPPlots:
         cbar.set_ylabel("Feature value", fontsize=18)  # Adjust the size as needed
         cbar.tick_params(labelsize=18)  # Adjust the size of the ticks (i.e., High/Low)
         plt.title(
-            f"Weight of each feature on the ML's decision making \n(random state = {model_class.random_state})",
+            f"Weight of each feature on the ML's decision making for {condition_to_predict} \n(random state = {model_class.random_state})",
             fontsize=20,
         )
 
         # Saving the figure if a path is provided
         if output_path:
-            plt.savefig(f"{output_path}shap_fig_{model_class.random_state}.svg", dpi=300, bbox_inches="tight")
+            plt.savefig(
+                f"{output_path}shap_fig_{condition_to_predict}_{model_class.random_state}.svg",
+                dpi=300,
+                bbox_inches="tight",
+            )
             print(f"SHAP plot saved to: {output_path}")
 
         if show:
             plt.show()
 
     @staticmethod
-    def plot_shap_bar(trained_model, features_names: list):
+    def plot_shap_bar(model_class, features_names: list, output_path: str = None, show=True):
 
-        shap_values = trained_model.shap_analysis["shap_values"]
+        shap_values = model_class.shap_analysis["shap_values"]
 
         if not isinstance(shap_values, shap.Explanation):
             shap_values_bar = shap.Explanation(shap_values, feature_names=features_names)
@@ -72,4 +85,10 @@ class SHAPPlots:
         fig.set_size_inches(10, 20)
         plt.title("Weight of each feature on the ML's decision making", fontsize=25)
         plt.gca().tick_params(axis="y", labelsize=35)
-        plt.show()
+
+        if output_path:
+            plt.savefig(f"{output_path}shap_bar_{model_class.random_state}.svg", dpi=300, bbox_inches="tight")
+            print(f"SHAP bar plot saved to: {output_path}")
+
+        if show:
+            plt.show()

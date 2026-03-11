@@ -16,3 +16,4 @@ dependencies:
 - shap=0.46.0
 - joblib
 - bayesian-optimization
+- imbalanced-learn

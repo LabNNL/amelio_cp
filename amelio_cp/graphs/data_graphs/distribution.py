@@ -9,6 +9,7 @@ import matplotlib.colors as colors
 class Distributions:
     pass
 
+    # TODO: handle the fact that for the last 2 samples the 6MWT_POST was not plotted...
     @staticmethod
     def plot_violin(X1, X2=None, ax=None, show=True, highlight_idx_list=None, output_path=None):
         """

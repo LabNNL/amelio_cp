@@ -7,18 +7,14 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 
 # %% Collecting/Loading the data from a csv file already created
+perso_path = input("Enter the path of the data directory:")
 
-# TODO: relative path to fix
-file_path = (
-    "/Users/mathildetardif/Documents/Python/Biomarkers/prediction_amelioration/datasets/sample_2/all_data_28pp.csv"
-)
+file_path = perso_path + "/all_data_28pp.csv"
 
 all_data = Process.load_csv(file_path)
 
 # %% Feature selection
-features = pd.read_excel(
-    "/Users/mathildetardif/Documents/Python/Biomarkers/prediction_amelioration/amelio_cp/processing/Features.xlsx"
-)
+features = pd.read_excel("amelio_cp/processing/Features.xlsx")
 selected_features = features["19"].dropna().to_list()
 features_names = features["19_names"]
 

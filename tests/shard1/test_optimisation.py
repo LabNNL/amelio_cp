@@ -10,7 +10,7 @@ data = Process.load_csv(data_path)
 def test_optimisation_svc_model():
     model = SVCModel()
 
-    X, y, _ = Process.prepare_data(data_path, "VIT", model_name=model.name)
+    X, y = Process.prepare_data2(data_path, model_name=model.name, condition_to_predict="VIT", features=None)
     model.add_data(X, y, test_size=0.2)
 
     # Bayesian Optimization

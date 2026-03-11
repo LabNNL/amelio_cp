@@ -98,7 +98,7 @@ class LinearModel:
         x_train, x_test, y_train, y_test = train_test_split(
             X, y, test_size=test_size, random_state=self.random_state_split
         )
-        print("✅ Split has been done.", flush=True)
+        print("Split has been done.", flush=True)
         self.add_train_data(x_train, y_train)
         self.add_test_data(x_test, y_test)
 
@@ -136,7 +136,7 @@ class LinearModel:
             print("Bayesian optimisation completed.")
 
         else:
-            raise ValueError("❌ Unknown optimisation method. Choose 'random', 'bayesian' or 'bayesian_optim'.")
+            raise ValueError("Unknown optimisation method. Choose 'random', 'bayesian' or 'bayesian_optim'.")
 
         self.optim_method = method
         self.model = search.best_estimator_  # recover the best model
@@ -164,6 +164,12 @@ class LinearModel:
         print(f"📊 CV RMSE: {cv_rmse.mean():.4f} ± {cv_rmse.std():.4f}")
 
         return {"R²": r2, "MSE": mse, "CV R²": cv_r2.mean(), "CV RMSE": cv_rmse.mean()}
+
+    def test_model(self):
+        y_pred = self.model.predict(self.X_test_scaled)
+        score = self.model.score(self.X_test_scaled, self.y_test)  # returns r2 - coefficient of determination
+        print(f"Model's score on testing data: {score:.4f}")
+        return y_pred, score
 
     def save(self, path):
         """Save model and training data."""

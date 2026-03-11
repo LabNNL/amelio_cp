@@ -3,9 +3,8 @@ from skopt import BayesSearchCV
 from bayes_opt import BayesianOptimization
 from skopt.space import Real, Integer, Categorical
 from scipy.stats import uniform, randint
-import numpy as np
-import random
 from sklearn import svm
+import numpy as np
 
 
 # TODO: find a way to collect training accuracies
@@ -68,15 +67,6 @@ class OptimisationMethods:
 
         return pbounds
 
-    # TODO: create _get_pbounds_for_xxx : rf / lin models
-    @staticmethod
-    def _get_pbounds_for_rf(model_name: str, optim_method: str, params_distrib: dict):
-        if optim_method == "random" or optim_method == "bayesian_search" or optim_method == "bayesian_optim":
-            raise NotImplementedError("Soon to be developped.")
-        else:
-            raise ValueError(f"No optimisation method named {optim_method}.")
-        return None
-
     # %% Optimisation functions
     def random_search(model, n_iter, k_folds):
 
@@ -85,7 +75,7 @@ class OptimisationMethods:
         else:
             raise NotImplementedError("Random search not implemented for this model.")
 
-        print("⚙️ Starting RandomizedSearchCV optimisation...")
+        print("* * * * * \nStarting RandomizedSearchCV optimisation...")
 
         cv_splitter = KFold(n_splits=k_folds, shuffle=True, random_state=model.random_state_cv)
 
@@ -103,7 +93,7 @@ class OptimisationMethods:
         return search
 
     def bayesian_search(model, n_iter, k_folds):
-        print("⚙️ Starting Bayesian Search Optimization...")
+        print("* * * * * \nStarting Bayesian Search Optimization...")
 
         if model.name == "svc" or model.name == "svr":
             pbounds = OptimisationMethods._get_pbounds_for_svm(
@@ -146,14 +136,14 @@ class OptimisationMethods:
             """
 
             params = {"C": C, "gamma": gamma, "degree": int(degree), "kernel": kernel_options[int(kernel)]}
-            model_to_optim = model.model.set_params(**params)
+            model_to_optim = svm.SVC(**params, random_state=model.random_state)
             cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=model.random_state_cv)
             scores = cross_val_score(
-                model_to_optim, model.X_train_scaled, model.y_train, cv=cv, scoring="accuracy", n_jobs=-1
+                model_to_optim, model.X_train_scaled, model.y_train, cv=cv, scoring="accuracy", n_jobs=1
             )
             return scores.mean()
 
-        print("⚙️ Starting Bayesian optimisation...")
+        print("* * * * * \nStarting Bayesian optimisation...")
 
         optimizer = BayesianOptimization(
             f=function_to_min, pbounds=pbounds, random_state=model.random_state_optim, verbose=3
